@@ -1,0 +1,35 @@
+{
+  "description": "The Thing Demo",
+  "engines": {
+    "node": "7.4.0"
+  },
+  "dependencies": {
+    "livereload": "git://github.com/cbaron/node-livereload.git#master",
+    "node-env-file": "^0.1.8"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.9.0",
+    "babel-preset-es2015": "^6.18.0",
+    "babelify": "7.3.0",
+    "browserify": "13.1.1",
+    "stylus": "0.54.0",
+    "uglify": "^0.1.5",
+    "watch": "0.18.0"
+  },
+  "license": "MIT",
+  "name": "ThingDemo",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cbaron/ThingDemo.git"
+  },
+  "scripts": {
+    "build:css": "stylus stylus/main.styl -o static/css/main.css && gzip -c static/css/main.css > static/css/main.css.gz",
+    "build:js": "scripts/writeLoadViews.js && browserify client/js/main.js -t [ babelify --presets [ es2015 ] ] | uglifyjs > static/js/bundle.js && gzip -c static/js/bundle.js > static/js/bundle.js.gz",
+    "build:js-debug": "scripts/writeLoadViews.js && browserify client/js/main.js -o static/js/debug.js -d -t [ babelify --presets [ es2015 ] --ignore [ /node_modules/ ] ] && gzip -c static/js/debug.js > static/js/debug.js.gz",
+    "build:watch": "npm run watch:css & npm run watch:js & npm run livereload",
+    "livereload": "scripts/liveReload.js",
+    "watch:css": "watch 'npm run build:css' stylus --ignoreDotFiles --interval=0.5",
+    "watch:js": "watch 'npm run build:js-debug' client/js --ignoreDotFiles --interval=0.5"
+  },
+  "version": "0.0.1"
+}
