@@ -16,6 +16,9 @@
 .Firehose {
   height: 80%;
 }
+.Geo {
+  height: 100%;
+}
 .Header {
   text-align: center;
 }
@@ -31,6 +34,13 @@
   float: left;
   height: 100%;
   width: 20%;
+}
+.Sidebar .Header {
+  background-color: #eee;
+  padding: 0 15px;
+}
+.Sidebar .Header img {
+  width: 60%;
 }
 html {
   font-size: 100%;

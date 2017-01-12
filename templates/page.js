@@ -12,6 +12,7 @@ module.exports = p => `
         <script src="/static/js/d3.min.js"></script>
         <script src="/static/js/vizuly_core.min.js"></script>
         <script src="/static/js/vizuly_weightedtree.min.js"></script>
+        <script async defer src="https://maps.googleapis.com/maps/api/js?key=${p.googleApiKey}&callback=initMap"></script>
         ${ ( p.isDev )
             ? '<script src="/static/js/debug.js.gz"></script>'
             : '<script src="/static/js/bundle.js.gz"></script>'
