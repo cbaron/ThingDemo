@@ -4,6 +4,7 @@
     "node": "7.4.0"
   },
   "dependencies": {
+    "d3": "^4.4.1",
     "livereload": "git://github.com/cbaron/node-livereload.git#master",
     "node-env-file": "^0.1.8"
   },

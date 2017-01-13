@@ -8,6 +8,7 @@ module.exports = Object.assign( {}, require('./__proto__'), {
 
     postRender() {
         this.views.sidebar.on( 'clicked', this.handleSidebarClick.bind(this) )
+        this.views.sidebar.els.list.firstChild.click()
         return this
     },
     
