@@ -4,6 +4,7 @@ module.exports = p => `
     <head>
         <link rel="stylesheet" type="text/css" href="/static/css/vizuly.css">
         <link rel="stylesheet" type="text/css" href="/static/css/vizuly_weightedtree.css">
+        <link rel="stylesheet" type="text/css" href="/static/css/pikaday.css">
         <link rel="stylesheet" type="text/css" href="/static/css/main.css.gz">
 
         <meta charset="UTF-8">

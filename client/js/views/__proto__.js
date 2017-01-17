@@ -105,20 +105,21 @@ module.exports = Object.assign( { }, require('../../../lib/MyObject'), require('
     },
 
     renderSubviews() {
-        Object.keys( this.Views || { } ).forEach( key => {
-            if( this.Views[ key ].el ) {
-                let opts = this.Views[ key ].opts
-                
-                opts = ( opts )
-                    ? typeof opts === "object"
+        Object.keys( this.viewEls || { } ).forEach( key => {
+            let opts = { }
+            console.log( key );
+            console.log( this.Views );
+            if( this.Views[ key ] && this.Views[ key ].opts ) {
+                console.log( typeof opts )
+                opts =
+                    typeof opts === "object"
                         ? opts
-                        : opts()
-                    : {}
-
-                this.views[ key ] = this.factory.create( key, Object.assign( { insertion: { value: { el: this.Views[ key ].el, method: 'insertBefore' } } }, opts ) )
-                this.Views[ key ].el.remove()
-                this.Views[ key ].el = undefined
-            }
+                        : Reflect.apply( opts, this, [ ] )
+            }    
+            console.log( opts ); 
+            this.views[ key ] = this.factory.create( key, Object.assign( { insertion: { value: { el: this.viewEls[ key ], method: 'insertBefore' } } }, opts ) )
+            this.viewEls[ key ].remove()
+            this.viewEls[ key ] = undefined
         } )
 
         return this
@@ -157,8 +158,8 @@ module.exports = Object.assign( { }, require('../../../lib/MyObject'), require('
         fragment.querySelectorAll( `${selector}, ${viewSelector}` ).forEach( el => {
             if( el.hasAttribute( this.slurp.attr ) ) { this.slurpEl( el ) }
             else if( el.hasAttribute( this.slurp.view ) ) {
-                if( ! this.Views[ el.getAttribute(this.slurp.view) ] ) this.Views[ el.getAttribute(this.slurp.view) ] = { }
-                this.Views[ el.getAttribute(this.slurp.view) ].el = el
+                if( ! this.viewEls ) this.viewEls = { }
+                this.viewEls[ el.getAttribute(this.slurp.view) ] = el
             }
         } )
           

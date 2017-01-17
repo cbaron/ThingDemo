@@ -140,20 +140,8 @@ module.exports = Object.create( Object.assign( {}, require('../lib/MyObject').pr
     },
 
     enumReference: {
-        account: {
-            gender: 'Gender',
-            offspring: "OffspringStatus",
-            relstatus: "RelationshipStatus",
-            intent: "Intent",
-            sexuality: "Sexuality",
-            ethnicity: "Ethnicity",
-            ethnicity_2: "Ethnicity",
-            religion: "Religion",
-            religiousness: "Religiousness",
-            smoking: "Frequency",
-            drugs: "Frequency",
-            alcohol: "Frequency",
-            education: "EducationLevel"
+        sensor: {
+            location: 'Geography'
         }
     }
 } ), {
