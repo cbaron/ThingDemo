@@ -5,6 +5,7 @@ module.exports={
 	Header: require('./views/Header'),
 	Home: require('./views/Home'),
 	Overview: require('./views/Overview'),
+	SensorsByNetwork: require('./views/SensorsByNetwork'),
 	Sidebar: require('./views/Sidebar'),
 	Widget: require('./views/Widget')
 }

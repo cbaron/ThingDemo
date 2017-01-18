@@ -13,8 +13,11 @@
   font-weight: 100;
   src: url("/static/fonts/Roboto-Light.ttf") format('truetype');
 }
-.Events svg {
-  fill: #f00;
+.Events {
+  background-color: #fff;
+  border-right: 15px solid #f7f7f8;
+  float: left;
+  width: 75%;
 }
 .Firehose {
   height: 80%;
@@ -24,9 +27,6 @@
 }
 .Header {
   text-align: center;
-}
-.Home {
-  height: 100%;
 }
 .Home .main {
   background-color: #f7f7f8;
@@ -81,6 +81,34 @@
 }
 .Overview .user-data-row .value {
   color: #e9e9e9;
+}
+.Overview .graph-wrap {
+  margin: 0 1rem;
+}
+.Overview .graph-wrap .heading {
+  background-color: #e7e7e7;
+  color: #000;
+  font-size: 0.85rem;
+  padding: 0.5rem;
+}
+.SensorsByNetwork {
+  background-color: #fff;
+  border-left: 15px solid #f7f7f8;
+  float: left;
+  width: 25%;
+}
+.SensorsByNetwork > div:nth-child(2) {
+  text-align: center;
+}
+.SensorsByNetwork > div:nth-child(2) svg {
+  margin: 20px 0px;
+  width: 75%;
+}
+.SensorsByNetwork > div:nth-child(2) svg .senet {
+  fill: #75ace2;
+}
+.SensorsByNetwork > div:nth-child(2) svg .machineq {
+  fill: #91c848;
 }
 .Sidebar {
   float: left;

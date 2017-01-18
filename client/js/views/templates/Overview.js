@@ -19,8 +19,8 @@ module.exports = p =>
             <span class="value">81.5%</span>
         </div>
     </div>
-    <div>
+    <div class="graph-wrap clearfix">
         <div data-view="events"></div>
-        <div data-js="sensors"></div>
+        <div data-view="sensorsByNetwork"></div>
     </div>
 </div>`

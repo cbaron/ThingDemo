@@ -9,6 +9,8 @@ module.exports = Object.assign( {}, require('./__proto__'), {
     },
 
     postRender() {
+        return this;
+
         this.arcGenerator =
             this.d3.arc()
             .innerRadius(0)
@@ -26,7 +28,7 @@ module.exports = Object.assign( {}, require('./__proto__'), {
                 this.arcs.push( this.arcGenerator( { startAngle: pieSlice.startAngle, endAngle: pieSlice.endAngle } ) )
             )
 
-            const els = this.arcs.map( arc => `<path d="${arc}"></path>` ).join('')
+            const els = this.arcs.map( ( arc, i ) => `<path class="${this.model.data[i].name}" d="${arc}"></path>` ).join('')
             this.slurpTemplate( { template: `<svg version="1.1" viewBox="0 0 300 300""><g transform="translate(150,150)">${els}</g></svg>`, insertion: { el: this.els.graph }, noClass: true } )
 
             
