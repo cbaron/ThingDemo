@@ -4,6 +4,8 @@ module.exports = Object.create( Object.assign( {}, require('./lib/MyObject'), {
 
     Path: require('path'),
 
+    Postgres: require('./dal/Postgres'),
+
     constructor() {
         this.isDev = ( process.env.ENV === 'development' )
 
@@ -11,9 +13,13 @@ module.exports = Object.create( Object.assign( {}, require('./lib/MyObject'), {
     },
 
     handler( request, response ) {
-        const path = request.url.split('/').slice(1)
+        let path = request.url.split('/').slice(1)
+            lastPath = path[ path.length - 1 ],
+            queryIndex = lastPath.indexOf('?')
 
-        request.setEncoding('utf8')
+        if( queryIndex !== -1 ) path[ path.length - 1 ] = lastPath.slice( 0, queryIndex )
+
+        request.setEncoding('utf8');
 
         ( path[0] === "static"
             ? this.static( request, response, path )

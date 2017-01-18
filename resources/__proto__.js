@@ -2,16 +2,8 @@ module.exports = Object.assign( { }, require('../lib/MyObject'), {
     
     JWS: require('jws'),
 
-    Context: require('lib/.Context'),
-    
-    Db: require('lib/.Db'),
-    
     Postgres: require('../dal/Postgres'),
 
-    Response: require('lib/Response'),
-
-    Validate: require('lib/.Validate'),
-    
     apply( method ) { return this.createChain( method ).callChain },
 
     createChain( method ) {

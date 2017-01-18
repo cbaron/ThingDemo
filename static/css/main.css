@@ -13,6 +13,9 @@
   font-weight: 100;
   src: url("/static/fonts/Roboto-Light.ttf") format('truetype');
 }
+.Events svg {
+  fill: #f00;
+}
 .Firehose {
   height: 80%;
 }

@@ -5,12 +5,13 @@
   },
   "dependencies": {
     "d3": "^4.4.1",
+    "jws": "^3.1.4",
     "libpq": "^1.8.5",
     "livereload": "git://github.com/cbaron/node-livereload.git#master",
-    "pikaday": "git://github.com/dbushell/Pikaday#1.5.1",
     "moment": "^2.17.1",
     "node-env-file": "^0.1.8",
-    "pg": "^6.1.2"
+    "pg": "^6.1.2",
+    "pikaday": "git://github.com/dbushell/Pikaday#1.5.1"
   },
   "devDependencies": {
     "babel-cli": "^6.9.0",
