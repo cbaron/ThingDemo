@@ -7,7 +7,7 @@ module.exports = Object.assign( {}, require('./__proto__'), {
 
     Views: {
         events: {
-            opts: function() { return { dates: { value: Object.assign( {}, this.templateOpts ) } } }
+            opts: function() { return { dates: Object.assign( {}, this.templateOpts ) } }
         }
     },
 

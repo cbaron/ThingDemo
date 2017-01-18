@@ -12,7 +12,7 @@ module.exports = Object.create( Object.assign( {}, require('../lib/MyObject').pr
 
     select( name, where, opts = { } ) {
         const keys = Object.keys( where )
-              whereClause = keys.map( ( key, i ) => `${key} = $${i+1}` ).join(', ')
+              whereClause = keys.map( ( key, i ) => `"${key}" = $${i+1}` ).join(', ')
 
         return this._factory( opts ).query(
             `SELECT * FROM ${name} WHERE ${whereClause}`,
@@ -21,7 +21,7 @@ module.exports = Object.create( Object.assign( {}, require('../lib/MyObject').pr
     },
 
     getColumnDescription( table, column ) {
-        const isEnum = ( this.enumReference && this.enumReference[ table.table_name ] && this.enumReference[ table.table_name ][ column.column_name ] ),
+        const isEnum = Boolean( this.enumReference && this.enumReference[ table.table_name ] && this.enumReference[ table.table_name ][ column.column_name ] ),
               range = isEnum
                 ? this.enumReference[ table.table_name ][ column.column_name ]
                 : this.dataTypeToRange[column.data_type]
@@ -37,7 +37,7 @@ module.exports = Object.create( Object.assign( {}, require('../lib/MyObject').pr
 
     getSelectList( table, opts={} ) {
         const tableAlias = opts.alias ? opts.alias : table
-        return this.tables[ table ].columns.map( column => `${tableAlias}.${column.name} as "${tableAlias}.${column.name}"` ).join(', ')
+        return this.tables[ table ].columns.map( column => `"${tableAlias}"."${column.name}" as "${tableAlias}.${column.name}"` ).join(', ')
     },
 
     getTableData() {
@@ -135,6 +135,7 @@ module.exports = Object.create( Object.assign( {}, require('../lib/MyObject').pr
         "date": "Date",
         "integer": "Integer",
         "money": "Float",
+        "real": "Float",
         "timestamp with time zone": "DateTime",
         "text": "Text"
     },

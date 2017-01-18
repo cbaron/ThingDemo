@@ -15,9 +15,17 @@ module.exports = Object.create( Object.assign( {}, require('./lib/MyObject'), {
 
         request.setEncoding('utf8')
 
-        path[0] === "static"
+        ( path[0] === "static"
             ? this.static( request, response, path )
-            : this.html( request, response )
+            : ( /application\/json/.test( request.headers.accept ) && this.resourceToFile[ path[0] ] )
+                ? this.rest( request, response, path )
+                : this.html( request, response )
+        )
+        .catch( e => {
+            this.Error(e)
+            response.writeHead( 500, { 'Content-Length': 0, 'Content-Type': 'text/plain' } )
+            response.end()
+        } )
     },
 
     html( request, response ) {
@@ -29,6 +37,24 @@ module.exports = Object.create( Object.assign( {}, require('./lib/MyObject'), {
         } ) )
         
         return Promise.resolve()
+    },
+
+    resourceToFile: {
+        sensorsByNetwork: 'sensorsByNetwork'
+    },
+
+    rest( request, response, path ) {
+        const file = this.resourceToFile[path[0]]
+
+        return this.P( this.Fs.stat, [ `${__dirname}/resources/${file}.js` ] )
+        .then( () => 
+            Object.create( require(`./resources/${file}`), {
+                request: { value: request },
+                response: { value: response },
+                path: { value: path },
+                tables: { value: this.Postgres.tables }
+            } ).apply( request.method )
+        )
     },
 
     static( request, response, path ) {
@@ -65,11 +91,6 @@ module.exports = Object.create( Object.assign( {}, require('./lib/MyObject'), {
             )
             stream.pipe( response, { end: false } )
         } ) )
-        .catch( e => {
-            this.Error(e)
-            response.writeHead( 200, { 'Content-Length': 0, 'Content-Type': 'text/plain' } )
-            response.end()
-        } )
     }
 
 } ), { } ).constructor()

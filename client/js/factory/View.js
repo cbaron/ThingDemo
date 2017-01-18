@@ -9,8 +9,7 @@ module.exports = Object.create( {
                 name: { value: name },
                 factory: { value: this },
                 template: { value: this.Templates[ name ] },
-                user: { value: this.User },
-                Views: { value: { } }
+                user: { value: this.User }
                 }, opts )
         ).constructor()
         .on( 'navigate', route => require('../router').navigate( route ) )

@@ -1,5 +1,7 @@
 module.exports = Object.assign( { }, require('../../../lib/MyObject'), require('events').EventEmitter.prototype, {
 
+    Model: require('../models/__proto__'),
+
     OptimizedResize: require('./lib/OptimizedResize'),
     
     Xhr: require('../Xhr'),
@@ -12,8 +14,6 @@ module.exports = Object.assign( { }, require('../../../lib/MyObject'), require('
     capitalizeFirstLetter: string => string.charAt(0).toUpperCase() + string.slice(1),
 
     constructor() {
-
-
         return Object.assign( this, { els: { }, slurp: { attr: 'data-js', view: 'data-view' }, views: { } } ).render()
     },
 
@@ -107,17 +107,13 @@ module.exports = Object.assign( { }, require('../../../lib/MyObject'), require('
     renderSubviews() {
         Object.keys( this.viewEls || { } ).forEach( key => {
             let opts = { }
-            console.log( key );
-            console.log( this.Views );
-            if( this.Views[ key ] && this.Views[ key ].opts ) {
-                console.log( typeof opts )
+            if( this.Views && this.Views[ key ] && this.Views[ key ].opts ) {
                 opts =
-                    typeof opts === "object"
-                        ? opts
-                        : Reflect.apply( opts, this, [ ] )
-            }    
-            console.log( opts ); 
-            this.views[ key ] = this.factory.create( key, Object.assign( { insertion: { value: { el: this.viewEls[ key ], method: 'insertBefore' } } }, opts ) )
+                    typeof this.Views[ key ].opts === "object"
+                        ? this.Views[ key ].opts
+                        : Reflect.apply( this.Views[ key ].opts, this, [ ] )
+            }
+            this.views[ key ] = this.factory.create( key, Object.assign( { insertion: { value: { el: this.viewEls[ key ], method: 'insertBefore' } } }, { opts: { value: opts  } } ) )
             this.viewEls[ key ].remove()
             this.viewEls[ key ] = undefined
         } )
