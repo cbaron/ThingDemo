@@ -15,16 +15,20 @@ module.exports = Object.create( Object.assign( {}, require('./lib/MyObject'), {
     handler( request, response ) {
         let path = request.url.split('/').slice(1)
             lastPath = path[ path.length - 1 ],
-            queryIndex = lastPath.indexOf('?')
+            queryIndex = lastPath.indexOf('?'),
+            qs = ''
 
-        if( queryIndex !== -1 ) path[ path.length - 1 ] = lastPath.slice( 0, queryIndex )
+        if( queryIndex !== -1 ) {
+            qs = lastPath.slice( queryIndex + 1 )
+            path[ path.length - 1 ] = lastPath.slice( 0, queryIndex )
+        }
 
         request.setEncoding('utf8');
 
         ( path[0] === "static"
             ? this.static( request, response, path )
             : ( /application\/json/.test( request.headers.accept ) && this.resourceToFile[ path[0] ] )
-                ? this.rest( request, response, path )
+                ? this.rest( request, response, path, qs )
                 : this.html( request, response )
         )
         .catch( e => {
@@ -46,10 +50,11 @@ module.exports = Object.create( Object.assign( {}, require('./lib/MyObject'), {
     },
 
     resourceToFile: {
+        eventCounts:      'eventCounts',
         sensorsByNetwork: 'sensorsByNetwork'
     },
 
-    rest( request, response, path ) {
+    rest( request, response, path, qs ) {
         const file = this.resourceToFile[path[0]]
 
         return this.P( this.Fs.stat, [ `${__dirname}/resources/${file}.js` ] )
@@ -58,6 +63,7 @@ module.exports = Object.create( Object.assign( {}, require('./lib/MyObject'), {
                 request: { value: request },
                 response: { value: response },
                 path: { value: path },
+                qs: { value: qs },
                 tables: { value: this.Postgres.tables }
             } ).apply( request.method )
         )

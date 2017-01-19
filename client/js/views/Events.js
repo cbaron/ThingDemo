@@ -1,6 +1,8 @@
 module.exports = Object.assign( {}, require('./__proto__'), {
 
-    d3: Object.assign( require('d3-shape') ),
+    Moment: require('moment'),
+    
+    d3: Object.assign( require('d3-shape'), require('d3-scale') ),
 
     dateChanged( el, e ) {
         console.log('ad');
@@ -9,30 +11,12 @@ module.exports = Object.assign( {}, require('./__proto__'), {
     },
 
     postRender() {
-        return this;
 
-        this.arcGenerator =
-            this.d3.arc()
-            .innerRadius(0)
-            .outerRadius(100)
-        this.arcs = [ ]
-
-        this.sensorsByNetwork = Object.create( this.Model, { resource: { value: 'sensorsByNetwork' } } )
-
-        this.sensorsByNetwork.get()
-        .then( () => {
-            console.log( this.sensorsByNetwork.data.map( data => data.count ) )
-            console.log(this.d3.pie()( this.sensorsByNetwork.data.map( data => data.count ) ) )
-
-            this.d3.pie()( this.sensorsByNetwork.data.map( data => data.count ) ).forEach( pieSlice =>
-                this.arcs.push( this.arcGenerator( { startAngle: pieSlice.startAngle, endAngle: pieSlice.endAngle } ) )
-            )
-
-            const els = this.arcs.map( ( arc, i ) => `<path class="${this.model.data[i].name}" d="${arc}"></path>` ).join('')
-            this.slurpTemplate( { template: `<svg version="1.1" viewBox="0 0 300 300""><g transform="translate(150,150)">${els}</g></svg>`, insertion: { el: this.els.graph }, noClass: true } )
-
-            
-        } )
+        this.ticks = this.d3.scaleTime()
+            .domain( [ this.opts.dates.from.toDate(), this.opts.dates.to.toDate() ] )
+            .ticks()
+    
+        this.Xhr( { method: 'get', resource: 'eventCounts', qs: JSON.stringify( this.ticks ) } )
 
         return this
     },

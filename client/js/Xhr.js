@@ -12,7 +12,6 @@ module.exports = Object.create( Object.assign( {}, require('../../lib/MyObject')
                         ? reject( this.response )
                         : resolve( JSON.parse(this.response) )
                 }
-
                 if( data.method === "get" || data.method === "options" ) {
                     let qs = data.qs ? `?${data.qs}` : '' 
                     req.open( data.method, `/${data.resource}${qs}` )
@@ -39,6 +38,7 @@ module.exports = Object.create( Object.assign( {}, require('../../lib/MyObject')
     },
 
     _factory( data ) {
+        console.log(data);
         return Object.create( this.Request, { } ).constructor( data )
     },
 

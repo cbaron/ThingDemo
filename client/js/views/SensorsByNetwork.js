@@ -18,21 +18,20 @@ module.exports = Object.assign( {}, require('./__proto__'), {
         this.model.get()
         .then( () => {
 
-            this.d3.pie()( this.model.data.map( data => data.count ) ).forEach( pieSlice =>
-                this.arcs.push(  )
-            )
-
-            const els = this.arcs.map( ( arc, i ) => {
+            const els = this.d3.pie()( this.model.data.map( data => data.count ) ).map( ( pieSlice, i ) => {
                 const args = { startAngle: pieSlice.startAngle, endAngle: pieSlice.endAngle },
                       path = this.arc( args ),
                       centroid = this.arc.centroid( args )
+
                 return `<path class="${this.model.data[i].name}" d="${path}"></path>` +
-                       `<text x="${centroid[0]}" y="${centroid[1]}">${this.model.data[i].label}</text>` 
+                       `<text text-anchor="middle" x="${centroid[0]}" y="${centroid[1]}">${this.model.data[i].label}</text>` 
             } ).join('')
+
             this.slurpTemplate( { template: `<svg version="1.1"><g transform="translate(${radius},${radius})">${els}</g></svg>`, insertion: { el: this.els.chart }, noClass: true } )
 
             this.size()    
         } )
+        .catch( this.Error )
 
         return this
     },
@@ -41,6 +40,5 @@ module.exports = Object.assign( {}, require('./__proto__'), {
         if( this.diameter ) {
             this.els.chart.firstChild.style.height = this.diameter
         }
-        //this.els.container.style.height = `${this.els.heading.clientHeight + this.diameter + 30}px`
     }
 } )
