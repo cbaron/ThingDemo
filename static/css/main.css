@@ -1,6 +1,3 @@
-fill: #75ace2 .machineq {
-  fill: #91c848;
-}
 @font-face {
   font-family: 'Roboto';
   font-weight: 400;
@@ -29,6 +26,20 @@ fill: #75ace2 .machineq {
 }
 .Events svg .x-axis {
   font-size: 0.5rem;
+}
+.Events svg .senet {
+  stroke: #75ace2;
+}
+.Events svg .senet.area {
+  fill: #75ace2;
+  opacity: 0.1;
+}
+.Events svg .machineq {
+  stroke: #91c848;
+}
+.Events svg .machineq.area {
+  fill: #91c848;
+  opacity: 0.1;
 }
 .Firehose {
   height: 80%;
@@ -102,12 +113,6 @@ fill: #75ace2 .machineq {
   font-size: 0.85rem;
   padding: 0.5rem;
 }
-.Overview .graph-wrap .senet {
-  fill: #75ace2;
-}
-.Overview .graph-wrap .machineq {
-  fill: #91c848;
-}
 .SensorsByNetwork {
   background-color: #fff;
   border-left: 15px solid #f7f7f8;
@@ -124,6 +129,12 @@ fill: #75ace2 .machineq {
 .SensorsByNetwork > div:nth-child(2) svg text {
   fill: #000;
   font-size: 0.75rem;
+}
+.SensorsByNetwork > div:nth-child(2) svg .senet {
+  fill: #75ace2;
+}
+.SensorsByNetwork > div:nth-child(2) svg .machineq {
+  fill: #91c848;
 }
 .Sidebar {
   float: left;

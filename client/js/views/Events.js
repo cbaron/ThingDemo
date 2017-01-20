@@ -18,13 +18,16 @@ module.exports = Object.assign( {}, require('./__proto__'), {
             .domain( [ this.opts.dates.from.toDate(), this.opts.dates.to.toDate() ] )
             .ticks()
 
+        let first = this.Moment( this.bottomTicks[0] )
+        first.subtract( this.Moment( this.bottomTicks[1] ).diff( first ), 'ms' )
+        const qs = JSON.stringify( [ first.toDate() ].concat( this.bottomTicks ) )
         this.bottomAxis = this.d3.scaleTime()
             .domain( [ this.opts.dates.from.toDate(), this.opts.dates.to.toDate() ] )
             .range( [ 0, this.graphWidth - 60 ] )
         
         this.byNetwork = { }
          
-        this.Xhr( { method: 'get', resource: 'eventCounts', qs: JSON.stringify( this.bottomTicks ) } )
+        this.Xhr( { method: 'get', resource: 'eventCounts', qs } )
         .then( data => {
             const range = [ 0, Infinity ]
             data.forEach( aggregate => {
@@ -33,7 +36,7 @@ module.exports = Object.assign( {}, require('./__proto__'), {
                 if( count < range[1] ) range[ 1 ] = count
 
                 if( !this.byNetwork[ aggregate.name ] ) this.byNetwork[ aggregate.name ] = { data: [ ], label: aggregate.label }
-                this.byNetwork[ aggregate.name ].data.push( [ this.bottomAxis( this.bottomTicks[ aggregate.index + 1 ] ), count ] )
+                this.byNetwork[ aggregate.name ].data.push( [ this.bottomAxis( this.bottomTicks[ aggregate.index ] ), count ] )
             } )
 
             this.leftAxis = this.d3.scaleLinear()
@@ -58,11 +61,26 @@ module.exports = Object.assign( {}, require('./__proto__'), {
             .attr( 'transform', `translate( 40, ${this.graphHeight - this.els.yAxis.getBBox().height - 20} )`)
 
             Object.keys( this.byNetwork ).forEach( network => {
-                const path = this.d3.line()( this.byNetwork[ network ].data.map( ( [ x, count ] ) => ( [ x, this.leftAxis(count) ] ) ) )
+                const data = this.byNetwork[ network ].data.map( ( [ x, count ] ) => ( [ x, this.leftAxis(count) ] ) ),
+                      line = this.d3.line()( data )
+
                 this.d3.select(this.els.graph)
                 .append('path')
                     .attr( 'class', network )
-                    .attr( 'd', path )
+                    .attr( 'd', line )
+                    .attr( 'transform', `translate( 41, ${this.graphHeight - this.els.yAxis.getBBox().height - 20} )` )
+
+                const area = this.d3.area()
+                    .x( d => d[0] )
+                    .y1( d => d[1] )
+                    .y0( d => this.leftAxis(0) )
+
+                this.d3.select(this.els.graph)
+                .append('path')
+                    .attr( 'class', `${network} area` )
+                    .attr( 'd', area( data ) )
+                    .attr( 'transform', `translate( 41, ${this.graphHeight - this.els.yAxis.getBBox().height - 20} )` )
+
             } )
 
         } )
