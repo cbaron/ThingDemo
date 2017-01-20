@@ -19,10 +19,19 @@
   float: left;
   width: 75%;
 }
-.Events svg {
-  display: block;
+.Events > div:nth-child(2) {
   height: 215px;
+}
+.Events svg {
+  height: 100%;
   width: 100%;
+}
+.Events svg .y-axis .domain {
+  stroke: #fff;
+}
+.Events svg .y-axis line {
+  stroke: #f7f7f8;
+  stroke-width: 2;
 }
 .Events svg .x-axis {
   font-size: 0.5rem;
@@ -120,10 +129,12 @@
   width: 25%;
 }
 .SensorsByNetwork > div:nth-child(2) {
+  height: 215px;
   text-align: center;
 }
 .SensorsByNetwork > div:nth-child(2) svg {
-  margin: 20px 0px;
+  height: 75%;
+  margin-top: 12.5%;
   width: 75%;
 }
 .SensorsByNetwork > div:nth-child(2) svg text {
@@ -132,9 +143,11 @@
 }
 .SensorsByNetwork > div:nth-child(2) svg .senet {
   fill: #75ace2;
+  stroke: #fff;
 }
 .SensorsByNetwork > div:nth-child(2) svg .machineq {
   fill: #91c848;
+  stroke: #fff;
 }
 .Sidebar {
   float: left;

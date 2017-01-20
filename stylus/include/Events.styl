@@ -3,11 +3,21 @@
     border-right: 15px solid $lightGrey
     float: left
     width: 75%
+    
+    > div:nth-child(2)
+        height: 215px
 
     svg
-        display: block
-        height: 215px
+        height: 100%
         width: 100%
+
+        .y-axis
+            .domain
+                stroke: white
+
+            line
+                stroke: $lightGrey
+                stroke-width: 2
 
         .x-axis
             font-size: .5rem
@@ -25,3 +35,4 @@
             &.area
                 fill: $machineq
                 opacity: .1
+

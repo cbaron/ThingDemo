@@ -3,8 +3,9 @@ module.exports = Object.assign( {}, require('./__proto__'), {
     d3: Object.assign( require('d3-shape') ),
 
     postRender() {
-        //this.diameter = this.els.container.clientWidth * .75
-        this.diameter = 175
+        this.height = this.els.chart.clientHeight 
+        this.width = this.els.chart.clientWidth 
+        this.diameter = this.height - this.width > 0 ? this.width * .75 : this.height * .75
         const radius = this.diameter / 2
 
         this.arc =
@@ -39,7 +40,7 @@ module.exports = Object.assign( {}, require('./__proto__'), {
 
     size() {
         if( this.diameter ) {
-            this.els.chart.firstChild.style.height = `${this.diameter}px`
+            //this.els.chart.firstChild.style.height = `${this.diameter}px`
         }
     }
 } )
