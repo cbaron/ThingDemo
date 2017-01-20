@@ -3,7 +3,8 @@ module.exports = Object.assign( {}, require('./__proto__'), {
     d3: Object.assign( require('d3-shape') ),
 
     postRender() {
-        this.diameter = this.els.container.clientWidth * .75
+        //this.diameter = this.els.container.clientWidth * .75
+        this.diameter = 175
         const radius = this.diameter / 2
 
         this.arc =
@@ -27,7 +28,7 @@ module.exports = Object.assign( {}, require('./__proto__'), {
                        `<text text-anchor="middle" x="${centroid[0]}" y="${centroid[1]}">${this.model.data[i].label}</text>` 
             } ).join('')
 
-            this.slurpTemplate( { template: `<svg version="1.1"><g transform="translate(${radius},${radius})">${els}</g></svg>`, insertion: { el: this.els.chart }, noClass: true } )
+            this.slurpTemplate( { template: `<svg version="1.1"><g transform="translate(${radius},${radius})">${els}</g></svg>`, insertion: { el: this.els.chart } } )
 
             this.size()    
         } )
@@ -38,7 +39,7 @@ module.exports = Object.assign( {}, require('./__proto__'), {
 
     size() {
         if( this.diameter ) {
-            this.els.chart.firstChild.style.height = this.diameter
+            this.els.chart.firstChild.style.height = `${this.diameter}px`
         }
     }
 } )

@@ -25,6 +25,8 @@ module.exports = Object.assign( {}, require('./__proto__'), {
         new this.Pikaday( { field: this.els.from, format: 'YYYY-MM-DD', onSelect: this.handleDateSelect.bind(this, 'from') } )
         new this.Pikaday( { field: this.els.to, format: 'YYYY-MM-DD', onSelect: this.handleDateSelect.bind(this, 'to') } )
 
+        this.views.sensorsByNetwork.on( 'sized', contentHeight => this.views.events.getSized( contentHeight ) )
+
         return this
     },
 

@@ -38,7 +38,6 @@ module.exports = Object.create( Object.assign( {}, require('../../lib/MyObject')
     },
 
     _factory( data ) {
-        console.log(data);
         return Object.create( this.Request, { } ).constructor( data )
     },
 

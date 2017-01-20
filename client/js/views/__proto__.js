@@ -95,7 +95,7 @@ module.exports = Object.assign( { }, require('../../../lib/MyObject'), require('
     postRender() { return this },
 
     render() {
-        this.slurpTemplate( { template: this.template( this.getTemplateOptions() ), insertion: this.insertion } )
+        this.slurpTemplate( { template: this.template( this.getTemplateOptions() ), insertion: this.insertion, isView: true } )
 
         this.renderSubviews()
 
@@ -129,10 +129,10 @@ module.exports = Object.assign( { }, require('../../../lib/MyObject'), require('
         } )
     },
 
-    slurpEl( el, opts={} ) {
+    slurpEl( el ) {
         var key = el.getAttribute( this.slurp.attr ) || 'container'
 
-        if( key === 'container' && !opts.noClass ) el.classList.add( this.name )
+        if( key === 'container' ) el.classList.add( this.name )
 
         this.els[ key ] = Array.isArray( this.els[ key ] )
             ? this.els[ key ].push( el )
@@ -145,12 +145,13 @@ module.exports = Object.assign( { }, require('../../../lib/MyObject'), require('
         if( this.events[ key ] ) this.delegateEvents( key, el )
     },
 
-    slurpTemplate( options={} ) {
+    slurpTemplate( options ) {
         var fragment = this.htmlToFragment( options.template ),
             selector = `[${this.slurp.attr}]`,
-            viewSelector = `[${this.slurp.view}]`
+            viewSelector = `[${this.slurp.view}]`,
+            firstEl = fragment.querySelector('*')
 
-        this.slurpEl( fragment.querySelector('*'), { noClass: options.noClass } )
+        if( options.isView || firstEl.getAttribute( this.slurp.attr ) ) this.slurpEl( firstEl )
         fragment.querySelectorAll( `${selector}, ${viewSelector}` ).forEach( el => {
             if( el.hasAttribute( this.slurp.attr ) ) { this.slurpEl( el ) }
             else if( el.hasAttribute( this.slurp.view ) ) {
