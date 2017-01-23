@@ -20,17 +20,31 @@
         li
             background-color: #2C3541
             border-bottom: 1px #394557 solid
+            cursor: pointer
             padding: 1rem .5rem
+            transition: background-color .3s linear
 
-        svg
-            fill: rgba(255, 255, 255, 0.8)
-            float: left
-            height: 1.5rem
-            width: 1.5rem
-            margin: 0 .5rem
+            svg
+                fill: rgba(255, 255, 255, 0.8)
+                float: left
+                height: 1.5rem
+                width: 1.5rem
+                margin: 0 .5rem
+                
 
-        .label
-            color: rgba(255, 255, 255, 0.5)
-            display: inline-block
-            line-height: 1.5rem
-            margin: 0 .5rem
+            .label
+                color: rgba(255, 255, 255, 0.5)
+                display: inline-block
+                line-height: 1.5rem
+                margin: 0 .5rem
+
+            &:hover
+                background-color: #222932
+
+            &.selected
+                background-color: #81B441
+
+                .label
+                    color: white
+                svg
+                    fill: white

@@ -3,7 +3,7 @@ module.exports = Object.assign( {}, require('./__proto__'), {
      //This changes the size of the component by adjusting the radius and width/height;
     changeSize( w, h ) {
         this.viz_container.transition().duration(300).style('width', w + 'px').style('height', h + 'px');
-        this.viz.width(w).height(h*.8).update();
+        this.viz.width(w).height(h*.75).update();
     },
 
     //This sets the same value for each radial progress
@@ -69,17 +69,17 @@ module.exports = Object.assign( {}, require('./__proto__'), {
         //Like D3 and jQuery, vizuly uses a function chaining syntax to set component properties
         //Here we set some bases line properties for all three components.
         this.viz.data(this.data)
-                .width(this.els.container.clientWidth) 
-                .height(this.els.container.clientHeight)
-                .children( d => d.values )
-                .key( d => d.id )
-                .value( d => Number( d[ `agg_${this.valueField}` ] ) )
-                .fixedSpan(-1)
-                .label( d => this.trimLabel( d.key || (d[ `Level${d.depth}` ] ) ) )
-                .on( "measure", this.onMeasure.bind(this) )
-                .on( "mouseover", this.onMouseOver.bind(this) )
-                .on( "mouseout", this.onMouseOut.bind(this) )
-                .on( "click", this.onClick.bind(this) )
+            .width(this.els.container.clientWidth) 
+            .height(this.els.container.clientHeight)
+            .children( d => d.values )
+            .key( d => d.id )
+            .value( d => Number( d[ `agg_${this.valueField}` ] ) )
+            .fixedSpan(-1)
+            .label( d => this.trimLabel( d.key || (d[ `Level${d.depth}` ] ) ) )
+            .on( "measure", this.onMeasure.bind(this) )
+            .on( "mouseover", this.onMouseOver.bind(this) )
+            .on( "mouseout", this.onMouseOut.bind(this) )
+            .on( "click", this.onClick.bind(this) )
 
         //We use this function to size the components based on the selected value from the RadiaLProgressTest.html page.
         this.changeSize( this.els.container.clientWidth, this.els.container.clientHeight )
@@ -94,13 +94,14 @@ module.exports = Object.assign( {}, require('./__proto__'), {
     loadData() {
         d3.csv("/static/data/weightedtree_federal_budget.csv", csv => {
             this.data.values = this.prepData( csv )
+            console.log( this.data.values )
             this.initialize()
         });
     },
 
     onMeasure() {
        // Allows you to manually override vertical spacing
-       // viz.tree().nodeSize([100,0]);
+       // this.viz.tree().nodeSize([100,0]);
     },
 
     onMouseOver(e,d,i) {
@@ -116,7 +117,8 @@ module.exports = Object.assign( {}, require('./__proto__'), {
 
    //We can capture click events and respond to them
     onClick(e,d,i) {
-        viz.toggleNode(d);
+        console.log('ac');
+        this.viz.toggleNode(d);
     },
 
     postRender() {

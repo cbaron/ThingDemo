@@ -1,6 +1,6 @@
 module.exports={
+	Api: require('./views/templates/Api'),
 	Events: require('./views/templates/Events'),
-	Firehose: require('./views/templates/Firehose'),
 	Geo: require('./views/templates/Geo'),
 	Header: require('./views/templates/Header'),
 	Home: require('./views/templates/Home'),

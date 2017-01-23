@@ -1,6 +1,6 @@
 module.exports={
+	Api: require('./views/Api'),
 	Events: require('./views/Events'),
-	Firehose: require('./views/Firehose'),
 	Geo: require('./views/Geo'),
 	Header: require('./views/Header'),
 	Home: require('./views/Home'),

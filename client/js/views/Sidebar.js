@@ -14,7 +14,12 @@ module.exports = Object.assign( {}, require('./__proto__'), {
 
     onListClick( e ) {
         const itemEl = e.target.tagName === "LI" ? e.target : e.target.closest('li')
+
+        if( this.selectedEl ) this.selectedEl.classList.remove('selected')
+        itemEl.classList.add('selected')
+
         this.emit( 'clicked', itemEl.getAttribute('data-name') )
+        this.selectedEl = itemEl
     },
 
     size() {

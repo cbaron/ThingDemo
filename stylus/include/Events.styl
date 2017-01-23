@@ -22,17 +22,19 @@
         .x-axis
             font-size: .5rem
 
-        .senet
-            stroke: $senet
+        .points, .lines
+            .senet
+                fill: $senet
+                stroke: $senet
+            .machineq
+                fill: $machineq
+                stroke: $machineq
 
-            &.area
+        .areas
+            .senet
                 fill: $senet
                 opacity: .1
-        
-        .machineq
-            stroke: $machineq
-            
-            &.area
+            .machineq
                 fill: $machineq
                 opacity: .1
 

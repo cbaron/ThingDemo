@@ -10,108 +10,171 @@ module.exports = Object.assign( {}, require('./__proto__'), {
         console.log(e);
     },
 
+    generateQs() {
+        const firstTick = this.Moment( this.timeTicks[0] )
+        firstTick.subtract( this.Moment( this.timeTicks[1] ).diff( firstTick ), 'ms' )
+
+        return JSON.stringify( [ firstTick.toDate() ].concat( this.timeTicks ) )
+    },
+
+    handleData() {
+        return this.Xhr( { method: 'get', resource: 'eventCounts', qs: this.generateQs() } )
+        .then( data => {
+            this.dataByNetwork = { }
+
+            this.valueRange = [ Infinity, 0 ]
+
+            return Promise.resolve(
+                data.forEach( aggregate => {
+                    const count = parseInt( aggregate.count )
+                    if( count < this.valueRange[0] ) this.valueRange[ 0 ] = count
+                    if( count > this.valueRange[1] ) this.valueRange[ 1 ] = count
+
+                    if( !this.dataByNetwork[ aggregate.name ] ) this.dataByNetwork[ aggregate.name ] = { data: [ ], label: aggregate.label }
+                    this.dataByNetwork[ aggregate.name ].data.push( [ this.timeScale( this.timeTicks[ aggregate.index ] ), count ] )
+                } )
+            )
+        } )
+    },
+
     postRender() {
         this.graphHeight = this.els.graph.clientHeight
         this.graphWidth = this.els.graph.clientWidth
 
-        this.bottomTicks = this.d3.scaleTime()
-            .domain( [ this.opts.dates.from.toDate(), this.opts.dates.to.toDate() ] )
-            .ticks()
-
-        let first = this.Moment( this.bottomTicks[0] )
-        first.subtract( this.Moment( this.bottomTicks[1] ).diff( first ), 'ms' )
-        const qs = JSON.stringify( [ first.toDate() ].concat( this.bottomTicks ) )
-
-        this.bottomAxis = this.d3.scaleTime()
-            .domain( [ this.opts.dates.from.toDate(), this.opts.dates.to.toDate() ] )
-            .range( [ 0, this.graphWidth - 60 ] )
+        this.setTimeScale()
         
-        this.byNetwork = { }
-         
-        this.Xhr( { method: 'get', resource: 'eventCounts', qs } )
-        .then( data => {
-            const range = [ 0, Infinity ]
-            const indexValues = { }
-            data.forEach( aggregate => {
-                const count = parseInt( aggregate.count )
-                if( count > range[0] ) range[ 0 ] = count
-                if( count < range[1] ) range[ 1 ] = count
+        this.handleData()
+        .then( () => {
+       
+            this.setAxises() 
 
-                if( !this.byNetwork[ aggregate.name ] ) this.byNetwork[ aggregate.name ] = { data: [ ], label: aggregate.label }
-                this.byNetwork[ aggregate.name ].data.push( [ this.bottomAxis( this.bottomTicks[ aggregate.index ] ), count ] )
-            } )
+            this.setLines()
 
-
-            this.leftAxis = this.d3.scaleLinear()
-                .domain( range )
-                .range( [ 0, this.graphHeight - 40 ] )
-
-            const axis = {
-
-                x: this.d3.axisBottom( this.bottomAxis )
-                    .tickFormat( this.d3.timeFormat( '%Y-%m-%d' ) )
-                    .tickSizeOuter(0),
-
-                y: this.d3.axisLeft( this.leftAxis )
-                    .tickValues( this.leftAxis.ticks(8) )
-                    .tickSizeOuter(0)
-                    .tickSizeInner( this.graphWidth - 60 )
-            }
-
-            this.d3.select( this.els.xAxis )
-            .attr( 'class', `x-axis` )
-            .attr( 'transform', `translate( 40, ${this.graphHeight - 20} )` )
-            .call( axis.x )
-
-            this.d3.select( this.els.yAxis )
-            .attr( 'class', `y-axis` )
-            .call( axis.y )
-
-            this.d3.selectAll( '.y-axis line' )
-            .attr( 'transform', `rotate( 180, 0, 0 )` )
-            
-            this.d3.selectAll( '.y-axis text' )
-            .attr( 'transform', `translate( ${this.graphWidth - 60}, 0 )` )
-           
-            this.d3.select( this.els.yAxis )
-            .attr( 'transform', `translate( 40, ${this.graphHeight - this.els.yAxis.getBBox().height - 20} )`)
-
-            Object.keys( this.byNetwork ).forEach( network => {
-                this.byNetwork[ network ].data = this.byNetwork[ network ].data.map( ( [ x, count ], i ) => {
-                    const y = this.leftAxis(count)
-                    if( ! indexValues[ i ] ) { indexValues[ i ] = [ ] }
-                    indexValues[ i ].push( y )
-                    return [ x, y ]
-                } )
-                const line = this.d3.line()( this.byNetwork[ network ].data )
-
-                this.d3.select(this.els.graph)
-                .append('path')
-                    .attr( 'class', network )
-                    .attr( 'd', line )
-                    .attr( 'transform', `translate( 41, ${this.graphHeight - this.els.yAxis.getBBox().height - 20} )` )
-            } )
-
-            Object.keys( indexValues ).forEach( i => indexValues[i].sort( ( a, b ) => a - b ) )
-
-            const area = this.d3.area()
-                .x( d => d[0] )
-                .y1( d => d[1] )
-                .y0( ( d, i ) => {
-                    var index = indexValues[i].indexOf( d[1] )
-                    return index === indexValues[i].length - 1 ? this.leftAxis( range[1] ) : indexValues[ i ][ index + 1 ]
-                } )
-
-            Object.keys( this.byNetwork ).forEach( network => {
-                this.d3.select(this.els.graph)
-                .append('path')
-                    .attr( 'class', `${network} area` )
-                    .attr( 'd', area( this.byNetwork[ network ].data ) )
-                    .attr( 'transform', `translate( 41, ${this.graphHeight - this.els.yAxis.getBBox().height - 20} )` )
-            } )
-
+            this.setAreas()
         } )
+        .catch( this.Error )
 
         return this
+    },
+
+    setAreas() {
+        const area = this.d3.area()
+            .x( d => d[0] )
+            .y1( d => d[1] )
+            .y0( ( d, i ) => {
+                const tickValues = this.valuesByTick[i],
+                      index = tickValues.indexOf( d[1] )
+
+                return index === tickValues.length - 1 ? this.valueScale( this.valueRange[1] ) : tickValues[ index + 1 ]
+            } )
+
+        this.d3.select(this.els.areas)
+            .attr( 'transform', `translate( 41, ${this.yTranslation} )` )
+
+        Object.keys( this.dataByNetwork ).forEach( network => {
+            this.d3.select(this.els.areas)
+            .append('path')
+                .attr( 'class', `${network}` )
+                .attr( 'd', area( this.dataByNetwork[ network ].data ) )
+        } )
+    },
+
+    setAxises() {
+        this.valueScale =
+            this.d3.scaleLinear()
+                .domain( this.valueRange.reverse() )
+                .range( [ 0, this.graphHeight - 40 ] )
+
+        this.xAxis =
+            this.d3.axisBottom( this.timeScale )
+                .tickFormat( this.d3.timeFormat( '%Y-%m-%d' ) )
+                .tickSizeOuter(0)
+
+        this.yAxis =
+            this.d3.axisLeft( this.valueScale )
+                .tickValues( this.valueScale.ticks(8) )
+                .tickSizeOuter(0)
+                .tickSizeInner( this.graphWidth - 60 )
+
+        this.d3.select( this.els.xAxis )
+        .attr( 'class', `x-axis` )
+        .attr( 'transform', `translate( 40, ${this.graphHeight - 20} )` )
+        .call( this.xAxis )
+
+        this.d3.select( this.els.yAxis )
+        .attr( 'class', `y-axis` )
+        .call( this.yAxis )
+
+        this.d3.selectAll( '.y-axis line' )
+        .attr( 'transform', `rotate( 180, 0, 0 )` )
+            
+        this.d3.selectAll( '.y-axis text' )
+        .attr( 'transform', `translate( ${this.graphWidth - 60}, 0 )` )
+
+        this.yTranslation = this.graphHeight - this.els.yAxis.getBBox().height - 20
+           
+        this.d3.select( this.els.yAxis )
+        .attr( 'transform', `translate( 40, ${this.yTranslation} )` )
+    },
+
+    setPoint( network, x, y ) {
+        this.d3.select(this.els.points)
+            .append('circle')
+                .attr('class', network )
+                .attr('cx', x )
+                .attr('cy', y )
+                .attr('r', 2 )
+    },
+
+    setLine( network, { x1, y1, x2, y2 } ) {
+        this.d3.select(this.els.lines)
+            .append('line')
+                .attr( 'class', network )
+                .attr( 'x1', x1 )
+                .attr( 'y1', y1 )
+                .attr( 'x2', x2 )
+                .attr( 'y2', y2 )
+    },
+
+    setLines() {
+
+        this.valuesByTick = { }
+        
+        this.d3.select(this.els.points)
+            .attr( 'transform', `translate( 41, ${this.yTranslation} )` )
+        
+        this.d3.select(this.els.lines)
+            .attr( 'transform', `translate( 41, ${this.yTranslation} )` )
+
+        Object.keys( this.dataByNetwork ).forEach( network => {
+            
+            this.dataByNetwork[ network ].data = this.dataByNetwork[ network ].data.map( ( [ x, count ], i ) => {
+                const y = this.valueScale(count)
+
+                if( ! this.valuesByTick[ i ] ) { this.valuesByTick[ i ] = [ ] }
+                this.valuesByTick[ i ].push( y )
+
+                this.setPoint( network, x, y )
+
+                return [ x, y ]
+            } )
+             
+            this.dataByNetwork[ network ].data.forEach( ( [ x, y ], i ) => {
+                if( i !== 0 ) {
+                    const prev = this.dataByNetwork[ network ].data[ i - 1 ]
+                    this.setLine( network, { x1: prev[0], y1: prev[1], x2: x, y2: y } )
+                }
+            } )
+        } )
+
+        Object.keys( this.valuesByTick ).forEach( i => this.valuesByTick[i].sort( ( a, b ) => a - b ) )
+    },
+
+    setTimeScale() {
+        this.timeScale = this.d3.scaleTime()
+            .domain( [ this.opts.dates.from.toDate(), this.opts.dates.to.toDate() ] )
+            .range( [ 0, this.graphWidth - 60 ] )
+
+        this.timeTicks = this.timeScale.ticks()
     },
 } )
