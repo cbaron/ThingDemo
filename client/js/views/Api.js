@@ -63,52 +63,152 @@ module.exports = Object.assign( {}, require('./__proto__'), {
         //A theme manages the look and feel of the component output.  You can only have
         //one component active per theme, so we bind each theme to the corresponding component.
         this.theme =
-            vizuly.theme.weighted_tree( this.viz)
+            vizuly.theme.weighted_tree( this.viz )
                         .skin(vizuly.skin.WEIGHTED_TREE_AXIIS)
 
+        console.log('asd');
         //Like D3 and jQuery, vizuly uses a function chaining syntax to set component properties
         //Here we set some bases line properties for all three components.
         this.viz.data(this.data)
             .width(this.els.container.clientWidth) 
-            .height(this.els.container.clientHeight)
+            .height(this.els.container.clientHeight * .8)
             .children( d => d.values )
             .key( d => d.id )
-            .value( d => Number( d[ `agg_${this.valueField}` ] ) )
+            .value( d => Number( d.revenue ) )
             .fixedSpan(-1)
             .label( d => this.trimLabel( d.key || (d[ `Level${d.depth}` ] ) ) )
             .on( "measure", this.onMeasure.bind(this) )
             .on( "mouseover", this.onMouseOver.bind(this) )
             .on( "mouseout", this.onMouseOut.bind(this) )
             .on( "click", this.onClick.bind(this) )
+        
+        console.log('asd2');
 
         //We use this function to size the components based on the selected value from the RadiaLProgressTest.html page.
         this.changeSize( this.els.container.clientWidth, this.els.container.clientHeight )
         this.initialized = true
 
         // Open up some of the tree branches.
-        this.viz.toggleNode(this.data.values[2]);
-        this.viz.toggleNode(this.data.values[2].values[0]);
-        this.viz.toggleNode(this.data.values[3]);
+        //this.viz.toggleNode(this.data.values[2]);
+        //this.viz.toggleNode(this.data.values[2].values[0]);
+        //this.viz.toggleNode(this.data.values[3]);
     },
 
     loadData() {
-        d3.csv("/static/data/weightedtree_federal_budget.csv", csv => {
+
+        const csv = [
+            {
+                revenue: 1,
+                id: 'temperature',
+                key: 'Temperature'
+            },
+            {
+                revenue: 2,
+                id: 'transactions',
+                key: 'Transactions'
+            },
+            {
+                revenue: 3,
+                id: 'network',
+                key: 'Network Utilization'
+            },
+            {
+                revenue: 4,
+                id: 'deviceType',
+                key: 'Device Type'
+            },
+            {
+                revenue: 5,
+                id: 'deployment',
+                key: 'Deployment'
+            },
+            {
+                revenue: 6,
+                id: 'segmentation',
+                key: 'Segmentation'
+            },
+            {
+                revenue: 7,
+                id: 'failure',
+                key: 'Failure'
+            },
+            {
+                revenue: 8,
+                id: 'deviceUtil',
+                key: 'Device Utilization'
+            }
+        ]
+
+        d3.csv("/static/data/weightedtree_federal_budget.csv", newcsv => {
+            console.log( csv );
             this.data.values = this.prepData( csv )
             console.log( this.data.values )
             this.initialize()
-        });
+
+            return;
+
+            this.data.values = {
+                revenue: 10,
+                id: 'root',
+                key: 'China Unicom IOT Data Revenue',
+                values: [
+                    {
+                        revenue: 1,
+                        id: 'temperature',
+                        key: 'Temperature'
+                    },
+                    {
+                        revenue: 2,
+                        id: 'transactions',
+                        key: 'Transactions'
+                    },
+                    {
+                        revenue: 3,
+                        id: 'network',
+                        key: 'Network Utilization'
+                    },
+                    {
+                        revenue: 4,
+                        id: 'deviceType',
+                        key: 'Device Type'
+                    },
+                    {
+                        revenue: 5,
+                        id: 'deployment',
+                        key: 'Deployment'
+                    },
+                    {
+                        revenue: 6,
+                        id: 'segmentation',
+                        key: 'Segmentation'
+                    },
+                    {
+                        revenue: 7,
+                        id: 'failure',
+                        key: 'Failure'
+                    },
+                    {
+                        revenue: 8,
+                        id: 'deviceUtil',
+                        key: 'Device Utilization'
+                    }
+                ],
+            };
+
+        } )
     },
 
     onMeasure() {
        // Allows you to manually override vertical spacing
-       // this.viz.tree().nodeSize([100,0]);
+       //this.viz.tree().nodeSize([100,0]);
     },
 
     onMouseOver(e,d,i) {
         if (d == this.data) return;
         var rect = e.getBoundingClientRect();
         if (d.target) d = d.target; //This if for link elements
-        this.createDataTip(rect.left, rect.top, (d.key || (d['Level' + d.depth])), this.formatCurrency(d["agg_" + this.valueField]), this.valueField);
+        //this.createDataTip(rect.left, rect.top, (d.key || (d['Level' + d.depth])), this.formatCurrency(d["agg_" + this.valueField]), this.valueField);
+        this.createDataTip(rect.left, rect.top, (d.key || (d['Level' + d.depth])), this.formatCurrency(d.revenue), "");
     },
 
      onMouseOut(e,d,i) {
@@ -117,7 +217,6 @@ module.exports = Object.assign( {}, require('./__proto__'), {
 
    //We can capture click events and respond to them
     onClick(e,d,i) {
-        console.log('ac');
         this.viz.toggleNode(d);
     },
 
@@ -135,8 +234,8 @@ module.exports = Object.assign( {}, require('./__proto__'), {
         this.data = {}
 
         // stores the currently selected value field
-        this.valueField = "Federal";
-        this.valueFields = ["Federal", "State", "Local"];
+        this.valueField = "revenue";
+        this.valueFields = ["Revenue"];
 
         // Set the size of our container element.
         this.viz_container = d3.selectAll("#viz")
@@ -148,22 +247,15 @@ module.exports = Object.assign( {}, require('./__proto__'), {
 
     prepData( csv ) {
 
-        var values=[];
-
-        //Clean federal budget data and remove all rows where all values are zero or no labels
-        csv.forEach( d => {
-            if( this.valueFields.reduce( ( memo, cur ) => memo + Number( d[ cur ] ), 0 ) > 0 ) values.push( d )
-        } )
-
         //Make our data into a nested tree.  If you already have a nested structure you don't need to do this.
         var nest = d3.nest()
-            .key( d => d.Level1 )
-            .key( d => d.Level2 )
-            .key( d => d.Level3 )
-            .entries(values)
+            .key( d => d.key )
+            .entries( csv )
 
         //This will be a viz.data function;
         vizuly.data.aggregateNest( nest, this.valueFields, ( a, b ) => Number(a) + Number(b) )
+
+        console.log( nest );
 
         var node={};
         node.values = nest;
