@@ -1,19 +1,93 @@
 module.exports = Object.assign( {}, require('./__proto__'), {
 
-    d3: Object.assign( require('d3-selection'), require('d3-scale') ),
+    curveLength: 300,
+    rootRadius: 20,
+
+    assignPoints() {
+
+        this.verticalScale =
+            this.d3.scaleLinear()
+                .domain( [ 0, 7 ] )
+                .range( [ 20, this.height - 20 ] )
+
+        Object.assign( this.model, {
+            x: ( this.els.svg.clientWidth / 2 ) - ( this.curveLength / 2 ),
+            y: this.model.y = this.els.svg.clientHeight / 2
+        } )
+
+        this.model.children.forEach( ( child, i ) => {
+            Object.assign( child, {
+                x: this.model.x + this.curveLength,
+                y: this.verticalScale( i )
+            } )
+        } )
+    },
+
+    d3: Object.assign( require('d3-selection'), require('d3-scale'), require('d3-shape') ),
+
+    model: {
+        name: 'totalRevenue',
+        label: 'China Unicom IoT Data Revenue',
+        children: [
+            {
+                revenue: 6.7,
+                name: 'temperature',
+                label: 'Temperature'
+            },
+            {
+                revenue: 3.2,
+                name: 'transactions',
+                label: 'Transactions'
+            },
+            {
+                revenue: 2.2,
+                name: 'network',
+                label: 'Network Utilization'
+            },
+            {
+                revenue: 10.3,
+                name: 'deviceType',
+                label: 'Device Type'
+            },
+            {
+                revenue: 1,
+                name: 'deployment',
+                label: 'Deployment'
+            },
+            {
+                revenue: 1.1,
+                name: 'interaction',
+                label: 'Interaction'
+            },
+            {
+                revenue: .5,
+                name: 'segmentation',
+                label: 'Segmentation'
+            },
+            {
+                revenue: .5,
+                name: 'failure',
+                label: 'Failure'
+            },
+            {
+                revenue: .3,
+                name: 'deviceUtil',
+                label: 'Device Utilization'
+            }
+        ]
+    },
 
     centerGraph() {
         let width = undefined
         this.d3.select('g.vz-weighted_tree-plot').select( function() { width = this.getBBox().width } )
-        console.log(this.els.container.clientWidth)
-        console.log(width)
         this.d3.select('g.vz-weighted_tree-plot')
             .attr( 'transform', `translate( ${7 + ( this.els.container.clientWidth - width ) / 2}, ${this.els.container.clientHeight / 2} )` )
     },
 
     setHeight( height ) {
+        this.els.container.style.height = `${height}px`;
+
         if( this.initialized ) {
-            this.els.container.style.height = `${height}px`;
             this.changeSize( this.els.container.clientWidth, height )
             setTimeout( () => this.centerGraph(), 500 )
         }
@@ -224,6 +298,48 @@ module.exports = Object.assign( {}, require('./__proto__'), {
     },
 
     postRender() {
+        this.setHeight( this.height )
+        
+        this.model.revenue = this.model.children.reduce( ( memo, val ) => memo + val, 0 )
+            
+        this.assignPoints()
+
+        this.colorScale =
+            this.d3.scaleLinear()
+                .domain( [ 0, this.model.children.length - 1 ] )
+                //.range( ["#1ddfc7", "#25e6b9" ] )
+                .range( ["#81b441", "#25e6b9" ] )
+             
+        this.line =
+            this.d3.line()
+            .curve( this.d3.curveBundle )
+
+        this.model.children.forEach( ( child, i ) => {
+            this.d3.select( this.els.lines )
+            .append( 'path' )
+                .attr( 'd', this.line( [ [ this.model.x, this.model.y ], [ this.model.x + 100, child.y ], [ child.x, child.y ] ] ) )
+                .style( 'stroke', this.colorScale(i) )
+        } )
+
+        this.d3.select( this.els.points )
+            .append( 'circle' )
+            .attr( 'cx', this.model.x )
+            .attr( 'cy', this.model.y )
+            .attr( 'r', this.rootRadius )
+            .style( 'stroke', this.colorScale(0) )
+            .style( 'fill', this.colorScale(this.model.children.length - 1) )
+
+        this.model.children.forEach( ( child, i ) => {
+            this.d3.select( this.els.points )
+            .append( 'circle' )
+                .attr( 'cx', child.x )
+                .attr( 'cy', child.y )
+                .attr( 'cy', child.y )
+                .style( 'fill', this.colorScale(i) )
+                .style( 'stroke', this.colorScale.invert(i) )
+        } )
+
+        return this;
         // html element that holds the chart
         this.viz_container = undefined
 

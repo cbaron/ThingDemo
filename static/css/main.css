@@ -13,8 +13,12 @@
   font-weight: 100;
   src: url("/static/fonts/Roboto-Light.ttf") format('truetype');
 }
-.Api {
-  padding: 1rem;
+.Api svg {
+  height: 100%;
+  width: 100%;
+}
+.Api svg .lines {
+  fill: transparent;
 }
 .Events {
   background-color: #fff;
