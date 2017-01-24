@@ -1,28 +1,24 @@
 module.exports = Object.assign( {}, require('./__proto__'), {
 
+    d3: Object.assign( require('d3-selection'), require('d3-scale') ),
+
+    setHeight( height ) {
+        if( this.initialized ) {
+            this.els.container.style.height = `${height}px`;
+            this.changeSize( this.els.container.clientWidth, height )
+        }
+    },
+
      //This changes the size of the component by adjusting the radius and width/height;
     changeSize( w, h ) {
         this.viz_container.transition().duration(300).style('width', w + 'px').style('height', h + 'px');
-        this.viz.width(w).height(h*.75).update();
+        this.viz.width(w).height(h).update();
     },
 
     //This sets the same value for each radial progress
     changeData( val ) {
         this.valueField = this.valueFields[ Number(val) ];
         this.viz.update();
-    },
-
-    //This function is called when the user selects a different skin.
-    changeSkin( val ) {
-        if (val == "None") {
-            this.theme.release()
-        }
-        else {
-            this.theme.viz(viz)
-            this.theme.skin(val)
-        }
-
-        this.viz().update();  //We could use theme.apply() here, but we want to trigger the tween.
     },
 
     // This function uses the above html template to replace values and then creates a new <div> that it appends to the
@@ -66,27 +62,27 @@ module.exports = Object.assign( {}, require('./__proto__'), {
             vizuly.theme.weighted_tree( this.viz )
                         .skin(vizuly.skin.WEIGHTED_TREE_AXIIS)
 
-        console.log('asd');
         //Like D3 and jQuery, vizuly uses a function chaining syntax to set component properties
         //Here we set some bases line properties for all three components.
         this.viz.data(this.data)
             .width(this.els.container.clientWidth) 
             .height(this.els.container.clientHeight * .8)
-            .children( d => d.values )
+            .children( d => d.values || [ ] )
             .key( d => d.id )
-            .value( d => Number( d.revenue ) )
+            .value( d => Number( d.agg_revenue ) )
             .fixedSpan(-1)
-            .label( d => this.trimLabel( d.key || (d[ `Level${d.depth}` ] ) ) )
+            .label( d => this.trimLabel( d.key ) )
             .on( "measure", this.onMeasure.bind(this) )
             .on( "mouseover", this.onMouseOver.bind(this) )
             .on( "mouseout", this.onMouseOut.bind(this) )
             .on( "click", this.onClick.bind(this) )
         
-        console.log('asd2');
-
         //We use this function to size the components based on the selected value from the RadiaLProgressTest.html page.
-        this.changeSize( this.els.container.clientWidth, this.els.container.clientHeight )
+        //this.changeSize( this.els.container.clientWidth, this.height )
         this.initialized = true
+        this.setHeight( this.height )
+
+        this.style()
 
         // Open up some of the tree branches.
         //this.viz.toggleNode(this.data.values[2]);
@@ -139,13 +135,13 @@ module.exports = Object.assign( {}, require('./__proto__'), {
             }
         ]
 
-        d3.csv("/static/data/weightedtree_federal_budget.csv", newcsv => {
-            console.log( csv );
-            this.data.values = this.prepData( csv )
-            console.log( this.data.values )
-            this.initialize()
+        //d3.csv("/static/data/weightedtree_federal_budget.csv", newcsv => {
+        
+        this.data.values = this.prepData( csv )
+        
+        this.initialize()
 
-            return;
+        return;
 
             this.data.values = {
                 revenue: 10,
@@ -194,8 +190,6 @@ module.exports = Object.assign( {}, require('./__proto__'), {
                     }
                 ],
             };
-
-        } )
     },
 
     onMeasure() {
@@ -208,7 +202,7 @@ module.exports = Object.assign( {}, require('./__proto__'), {
         var rect = e.getBoundingClientRect();
         if (d.target) d = d.target; //This if for link elements
         //this.createDataTip(rect.left, rect.top, (d.key || (d['Level' + d.depth])), this.formatCurrency(d["agg_" + this.valueField]), this.valueField);
-        this.createDataTip(rect.left, rect.top, (d.key || (d['Level' + d.depth])), this.formatCurrency(d.revenue), "");
+        this.createDataTip(rect.left, rect.top, d.key, this.formatCurrency(d.agg_revenue), this.valueField);
     },
 
      onMouseOut(e,d,i) {
@@ -235,7 +229,7 @@ module.exports = Object.assign( {}, require('./__proto__'), {
 
         // stores the currently selected value field
         this.valueField = "revenue";
-        this.valueFields = ["Revenue"];
+        this.valueFields = ["revenue"];
 
         // Set the size of our container element.
         this.viz_container = d3.selectAll("#viz")
@@ -255,13 +249,9 @@ module.exports = Object.assign( {}, require('./__proto__'), {
         //This will be a viz.data function;
         vizuly.data.aggregateNest( nest, this.valueFields, ( a, b ) => Number(a) + Number(b) )
 
-        console.log( nest );
+        this.removeEmptyNodes( { values: nest }, "0", "0" );
 
-        var node={};
-        node.values = nest;
-        this.removeEmptyNodes(node,"0","0");
-
-        return nest;
+        return nest
     },
 
     //Remove empty child nodes left at end of aggregation and add unqiue ids
@@ -281,9 +271,20 @@ module.exports = Object.assign( {}, require('./__proto__'), {
         }
     },
 
-    size() {
-        if( this.initialized ) this.changeSize( this.els.container.clientWidth, this.els.container.clientHeight )
-        return true
+    style() {
+        const paths = this.d3.selectAll('.vz-weighted_tree-link-plot path'),
+              colorScale = this.d3.scaleLinear()
+                .domain( [ 0, paths.size() - 1 ] )
+                .range( ["#1ddfc7", "#25e6b9" ] ),
+              fn = ( d, i ) => colorScale(i)
+       
+        paths.style( 'stroke', fn )
+        
+        console.log( this.d3.selectAll('.vz-weighted_tree-node-circle').size() )
+
+        this.d3.selectAll('.vz-weighted_tree-node-circle')
+            .style( 'stroke', fn )
+            .style( 'fill', fn )
     },
 
     trimLabel (label) {

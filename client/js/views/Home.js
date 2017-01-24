@@ -1,4 +1,6 @@
 module.exports = Object.assign( {}, require('./__proto__'), {
+
+    getHeight() { return window.innerHeight - this.views.header.els.container.clientHeight },
     
     handleSidebarClick( name ) {
         if( this.currentView === name ) return
@@ -7,14 +9,19 @@ module.exports = Object.assign( {}, require('./__proto__'), {
 
         if( this.views[ name ] ) return promiseChain.then( () => this.views[ name ].show() ).catch( this.Error )
 
-         promiseChain.then( () => Promise.resolve(
-            this.views[ name ] =
-                this.factory.create(
-                    name,
-                    Object.assign( { insertion: { value: { el: this.els.content } }, opts: { value: { dates: this.views.header.getDates() } } } )
-                )
-        ) )
-        .then( () => Promise.resolve( name ===  'api' ? this.sizeApi() : undefined ) )
+         promiseChain.then( () =>
+             Promise.resolve(
+                 this.views[ name ] =
+                    this.factory.create(
+                        name,
+                        Object.assign( {
+                            insertion: { value: { el: this.els.content } },
+                            height: { value: this.getHeight() },
+                            opts: { value: { dates: this.views.header.getDates() } }
+                        } )
+                    )
+             )
+         )
         .catch( this.Error )
     },
 
@@ -29,11 +36,8 @@ module.exports = Object.assign( {}, require('./__proto__'), {
     },
     
     size() {
-        if( this.views.api ) this.sizeApi()
+        if( this.views.api ) this.views.api.setHeight( this.getHeight() )
         return true
-    },
-
-    sizeApi() {
-        this.views.api.els.container.style.height = `${this.els.container.clientHeight - this.views.header.els.container.clientHeight}px`
     }
+
 } )
