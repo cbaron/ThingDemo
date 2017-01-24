@@ -2,10 +2,20 @@ module.exports = Object.assign( {}, require('./__proto__'), {
 
     d3: Object.assign( require('d3-selection'), require('d3-scale') ),
 
+    centerGraph() {
+        let width = undefined
+        this.d3.select('g.vz-weighted_tree-plot').select( function() { width = this.getBBox().width } )
+        console.log(this.els.container.clientWidth)
+        console.log(width)
+        this.d3.select('g.vz-weighted_tree-plot')
+            .attr( 'transform', `translate( ${7 + ( this.els.container.clientWidth - width ) / 2}, ${this.els.container.clientHeight / 2} )` )
+    },
+
     setHeight( height ) {
         if( this.initialized ) {
             this.els.container.style.height = `${height}px`;
             this.changeSize( this.els.container.clientWidth, height )
+            setTimeout( () => this.centerGraph(), 500 )
         }
     },
 
@@ -82,7 +92,7 @@ module.exports = Object.assign( {}, require('./__proto__'), {
         this.initialized = true
         this.setHeight( this.height )
 
-        this.style()
+        //this.style()
 
         // Open up some of the tree branches.
         //this.viz.toggleNode(this.data.values[2]);
@@ -201,7 +211,6 @@ module.exports = Object.assign( {}, require('./__proto__'), {
         if (d == this.data) return;
         var rect = e.getBoundingClientRect();
         if (d.target) d = d.target; //This if for link elements
-        //this.createDataTip(rect.left, rect.top, (d.key || (d['Level' + d.depth])), this.formatCurrency(d["agg_" + this.valueField]), this.valueField);
         this.createDataTip(rect.left, rect.top, d.key, this.formatCurrency(d.agg_revenue), this.valueField);
     },
 
@@ -280,9 +289,7 @@ module.exports = Object.assign( {}, require('./__proto__'), {
        
         paths.style( 'stroke', fn )
         
-        console.log( this.d3.selectAll('.vz-weighted_tree-node-circle').size() )
-
-        this.d3.selectAll('.vz-weighted_tree-node-circle')
+        this.d3.selectAll('.vz-weighted_tree-node-plot circle')
             .style( 'stroke', fn )
             .style( 'fill', fn )
     },
