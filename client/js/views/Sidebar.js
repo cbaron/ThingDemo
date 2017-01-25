@@ -9,7 +9,7 @@ module.exports = Object.assign( {}, require('./__proto__'), {
     data: [
         { icon: require('./templates/lib/home'), label: 'Overview', name: 'overview' },
         { icon: require('./templates/lib/dollar'), label: 'API Revenue', name: 'api' },
-        { icon: require('./templates/lib/location'), label: 'Geo', name: 'firehose' }
+        { icon: require('./templates/lib/location'), label: 'Geo', name: 'geo' }
     ],
 
     onListClick( e ) {
@@ -18,8 +18,8 @@ module.exports = Object.assign( {}, require('./__proto__'), {
         if( this.selectedEl ) this.selectedEl.classList.remove('selected')
         itemEl.classList.add('selected')
 
-        this.emit( 'clicked', itemEl.getAttribute('data-name') )
         this.selectedEl = itemEl
+        this.emit( 'navigate', `/${itemEl.getAttribute('data-name')}` )
     },
 
     size() {

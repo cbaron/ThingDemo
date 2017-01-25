@@ -3,6 +3,6 @@ module.exports = p =>
     <div data-view="sidebar"></div>
     <div class="main">
         <div data-view="header"></div>
-        <div data-js="content"></div>
+        <div class="content" data-js="content"></div>
     </div>
 </div>`

@@ -2,7 +2,9 @@ module.exports = Object.assign( {}, require('./__proto__'), {
 
     getHeight() { return window.innerHeight - this.views.header.els.container.clientHeight },
     
-    handleSidebarClick( name ) {
+    onNavigation( path ) {
+        const name = path[0]
+
         if( this.currentView === name ) return
        
         let promiseChain = ( this.currentView ? this.views[ this.currentView ].hide() : Promise.resolve() ).then( () => Promise.resolve( this.currentView = name ) )
@@ -22,16 +24,18 @@ module.exports = Object.assign( {}, require('./__proto__'), {
                     )
              )
          )
-        .catch( this.Error )
+        .catch( e => { this.Error(e); this.emit( 'navigate', '/' ) } )
     },
 
     postRender() {
         this.currentView = undefined
 
-        this.views.sidebar.on( 'clicked', this.handleSidebarClick.bind(this) )
-        this.views.sidebar.els.list.children[1].click()
+        this.views.header.on( 'dateChanged', e => this.views[ this.currentView ].onDateChange( e ) );
 
-        this.views.header.on( 'dateChanged', e => this.views[ this.currentView ].onDateChange( e ) )
+        ( this.path[0] )
+            ? this.onNavigation( this.path )
+            : this.views.sidebar.els.list.children[0].click()
+
         return this
     },
     

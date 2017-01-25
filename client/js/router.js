@@ -21,7 +21,9 @@ module.exports = Object.create( {
     },
 
     handler( path ) {
-        const view = this.Views[ path[0] ] ? path[0] : 'home';
+        //const view = this.Views[ path[0] ] ? path[0] : 'home';
+        const view = 'home';
+
 
         ( ( view === this.currentView )
             ? Promise.resolve()

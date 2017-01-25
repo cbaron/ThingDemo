@@ -1,5 +1,7 @@
 module.exports = Object.assign( {}, require('./__proto__'), {
 
+    carPath: require('./lib/carPath'),
+
     data: [
         { lat: 39.950614, lng: -75.193481, isOpen: true },
         { lat: 39.950620, lng: -75.193398, isOpen: true },
@@ -39,12 +41,12 @@ module.exports = Object.assign( {}, require('./__proto__'), {
 
         this.data.forEach( datum => {
             datum.icon = {
-                path: "M0 0 H 10 V 10 H 0 L 0 0",
-                fillColor: datum.isOpen ? 'green' : 'red',
+                path: this.carPath,
+                fillColor: datum.isOpen ? 'gray' : 'green',
                 fillOpacity: .6,
                 anchor: new google.maps.Point(0,0),
                 strokeWeight: 0,
-                scale: 1
+                scale: .03
             }
 
             datum.marker = new google.maps.Marker( {
@@ -59,6 +61,9 @@ module.exports = Object.assign( {}, require('./__proto__'), {
     },
 
     postRender() {
+
+        this.setHeight( this.height )
+
         window.google
             ? this.initMap()
             : window.initMap = this.initMap
@@ -66,11 +71,15 @@ module.exports = Object.assign( {}, require('./__proto__'), {
         return this
     },
 
+    setHeight( height ) {
+        this.els.container.style.height = `${height}px`;
+    },
+
     toggleRandomSpot() {
         let datum = this.data[ Math.floor( Math.random() * this.data.length ) ]
 
         datum.isOpen = !datum.isOpen
-        datum.icon.fillColor = datum.isOpen ? 'green' : 'red'
+        datum.icon.fillColor = datum.isOpen ? 'gray' : 'green'
         datum.marker.set( 'icon', datum.icon )
     }
 
