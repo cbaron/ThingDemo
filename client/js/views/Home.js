@@ -33,7 +33,9 @@ module.exports = Object.assign( {}, require('./__proto__'), {
     postRender() {
         this.currentView = undefined
 
-        this.views.header.on( 'dateChanged', e => this.views[ this.currentView ].onDateChange( e ) );
+        this.views.header.on( 'dateChanged', ( el, e ) => {
+            this.views[ this.currentView ].onDateChange( el, e )
+        } );
 
         ( this.path[0] )
             ? this.onNavigation( this.path )

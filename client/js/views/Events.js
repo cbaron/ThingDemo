@@ -1,18 +1,50 @@
 module.exports = Object.assign( {}, require('./__proto__'), {
 
-    computeSizes() {
-        this.graphHeight = this.els.graph.clientHeight
-        this.graphWidth = this.els.graph.clientWidth
+    Moment: require('moment'),
+
+    clearGraph() {
+        this.rendered = false;
+        [ 'xAxis', 'yAxis', 'areas', 'lines', 'points' ].forEach( el => this.els[ el ].innerHTML = '' )
     },
 
-    Moment: require('moment'),
+    computeSizes() {
+        this.boundingHeight = this.els.graph.clientHeight
+        this.boundingWidth = this.els.graph.clientWidth
+    },
     
     d3: Object.assign( require('d3-shape'), require('d3-scale'), require('d3-axis'), require('d3-selection'), require('d3-time-format') ),
 
-    dateChanged( el, e ) {
-        console.log('ad');
-        console.log(el);
-        console.log(e);
+    drawGraph() {
+        
+        this.setTimeScale()
+        
+        this.handleData()
+        .then( () => {
+       
+            this.setAxises() 
+
+            this.setLines()
+
+            this.setAreas()
+
+            this.originalHeight = this.boundingHeight
+            this.originalWidth = this.boundingWidth
+
+            this.handlePotentialXScaling()
+
+            return Promise.resolve( this.rendered = true )
+        } )
+        .catch( this.Error )
+    },
+
+    onDateChange( el, e ) {
+        this.opts.dates[ el ] = this.Moment( e )
+
+        if( this.opts.dates.to.isBefore( this.opts.dates.from ) ) return
+
+        this.clearGraph()
+
+        this.drawGraph()
     },
 
     generateQs() {
@@ -20,13 +52,6 @@ module.exports = Object.assign( {}, require('./__proto__'), {
         firstTick.subtract( this.Moment( this.timeTicks[1] ).diff( firstTick ), 'ms' )
 
         return JSON.stringify( [ firstTick.toDate() ].concat( this.timeTicks ) )
-    },
-
-    getLastTimeTick() {
-        const lastTick = this.Moment( this.timeTicks[ this.timeTicks.length -1 ] )
-        lastTick.add( lastTick.diff( this.Moment( this.timeTicks[ this.timeTicks.length - 2 ] ), 'ms' ) )
-
-        return lastTick.toDate()
     },
 
     handleData() {
@@ -49,27 +74,22 @@ module.exports = Object.assign( {}, require('./__proto__'), {
         } )
     },
 
+    handlePotentialXScaling() {
+        const graphWidth = this.els.scale.getBBox().width
+
+        if( graphWidth > this.originalWidth ) {
+            this.originalWidth = graphWidth + 15
+            this.scaleGraph()
+        } else {
+            this.scaleGraph( { reset: true } )
+        }
+    },
+
     postRender() {
         this.computeSizes()
 
-        this.setTimeScale()
+        this.drawGraph()
         
-        this.handleData()
-        .then( () => {
-       
-            this.setAxises() 
-
-            this.setLines()
-
-            this.setAreas()
-
-            this.originalHeight = this.graphHeight
-            this.originalWidth = this.graphWidth
-
-            return Promise.resolve( this.rendered = true )
-        } )
-        .catch( this.Error )
-
         return this
     },
 
@@ -99,7 +119,7 @@ module.exports = Object.assign( {}, require('./__proto__'), {
         this.valueScale =
             this.d3.scaleLinear()
                 .domain( this.valueRange.reverse() )
-                .range( [ 0, this.graphHeight - 40 ] )
+                .range( [ 0, this.boundingHeight - 40 ] )
 
         this.xAxis =
             this.d3.axisBottom( this.timeScale )
@@ -108,13 +128,13 @@ module.exports = Object.assign( {}, require('./__proto__'), {
 
         this.yAxis =
             this.d3.axisLeft( this.valueScale )
-                .tickValues( this.valueScale.ticks(8) )
+                .tickValues( this.valueScale.ticks(6) )
                 .tickSizeOuter(0)
-                .tickSizeInner( this.graphWidth - 60 )
+                .tickSizeInner( this.boundingWidth - 60 )
 
         this.d3.select( this.els.xAxis )
         .attr( 'class', `x-axis` )
-        .attr( 'transform', `translate( 40, ${this.graphHeight - 20} )` )
+        .attr( 'transform', `translate( 40, ${this.boundingHeight - 20} )` )
         .call( this.xAxis )
 
         this.d3.select( this.els.yAxis )
@@ -125,18 +145,18 @@ module.exports = Object.assign( {}, require('./__proto__'), {
         .attr( 'transform', `rotate( 180, 0, 0 )` )
             
         this.d3.selectAll( '.y-axis text' )
-        .attr( 'transform', `translate( ${this.graphWidth - 60}, 0 )` )
+        .attr( 'transform', `translate( ${this.boundingWidth - 60}, 0 )` )
        
         this.xTranslation = this.timeScale( this.timeTicks[1] ) / 2
 
         const xAxisPath = this.d3.select('.x-axis .domain')
-        xAxisPath.attr( 'd', `${xAxisPath.attr( 'd' )}M${this.timeScale( this.timeTicks[ this.timeTicks.length - 1 ] )},0.5h${this.xTranslation*2}V6` )
+        xAxisPath.attr( 'd', `${xAxisPath.attr( 'd' ).slice( 0, -2 )}M${this.timeScale( this.timeTicks[ this.timeTicks.length - 1 ] )},0.5h${this.xTranslation*2}V6` )
 
         this.d3.selectAll( '.x-axis text' )
         .attr( 'x', this.xTranslation )
         .attr( 'y', 6 )
 
-        this.yTranslation = this.graphHeight - this.els.yAxis.getBBox().height - 20
+        this.yTranslation = this.boundingHeight - this.els.yAxis.getBBox().height - 20
            
         this.d3.select( this.els.yAxis )
         .attr( 'transform', `translate( 40, ${this.yTranslation} )` )
@@ -196,23 +216,32 @@ module.exports = Object.assign( {}, require('./__proto__'), {
     },
 
     setTimeScale() {
+        const dayDiff = this.opts.dates.to.diff( this.opts.dates.from, 'd' )
+
         this.timeScale = this.d3.scaleTime()
             .domain( [ this.opts.dates.from.toDate(), this.opts.dates.to.toDate() ] )
-            .range( [ 0, this.graphWidth - 100 ] )
+            .range( [ 0, this.boundingWidth - 100 ] )
+       
+       console.log( dayDiff ); 
+        this.timeTicks =
+            ( dayDiff ) < 5
+                ? this.timeScale.ticks( dayDiff )
+                : this.timeScale.ticks(7)
+    },
 
-        this.timeTicks = this.timeScale.ticks(9)
+    scaleGraph( opts={} ) {
+        this.computeSizes()
+
+        let ratio = [ this.boundingWidth / this.originalWidth, this.boundingHeight / this.originalHeight ]
+        
+        if( opts.reset ) ratio = [ 1, 1 ]
+
+        this.d3.select( this.els.scale ).attr( `transform`, `scale( ${ratio[0]}, ${ratio[1]} )` )
     },
 
     size() {
-        if( this.rendered ) {
-            console.log('aascd')
-            this.computeSizes()
-
-            console.log('aascdqopqpqpqp')
-            const ratio = [ this.graphWidth / this.originalWidth, this.graphHeight / this.originalHeight ]
-
-            this.d3.select( this.els.scale ).attr( `transform`, `scale( ${ratio[0]}, ${ratio[1]} )` )
-        }
+        if( this.rendered ) this.scaleGraph()
+            
         return true
     }
 } )

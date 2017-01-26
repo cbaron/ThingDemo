@@ -6,6 +6,10 @@ module.exports = Object.assign( {}, require('./__proto__'), {
         }
     },
 
+    onDateChange( el, e ) {
+        this.views.events.onDateChange( el, e )
+    },
+
     postRender() {
 
         this.widgetViews = {}
