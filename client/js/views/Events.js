@@ -77,8 +77,8 @@ module.exports = Object.assign( {}, require('./__proto__'), {
     handlePotentialXScaling() {
         const graphWidth = this.els.scale.getBBox().width
 
-        if( graphWidth > this.originalWidth ) {
-            this.originalWidth = graphWidth + 15
+        if( ( graphWidth + 55 ) > this.originalWidth ) {
+            this.originalWidth = graphWidth + 55
             this.scaleGraph()
         } else {
             this.scaleGraph( { reset: true } )
@@ -121,9 +121,11 @@ module.exports = Object.assign( {}, require('./__proto__'), {
                 .domain( this.valueRange.reverse() )
                 .range( [ 0, this.boundingHeight - 40 ] )
 
+        const dayDiff = this.Moment( this.timeTicks[1] ).diff( this.Moment( this.timeTicks[0] ), 'd' )
+
         this.xAxis =
             this.d3.axisBottom( this.timeScale )
-                .tickFormat( this.d3.timeFormat( '%Y-%m-%d' ) )
+                .tickFormat( dayDiff > 0 ? this.d3.timeFormat( '%Y-%m-%d' ) : this.d3.timeFormat( '%m-%d-%H:%M' ) )
                 .tickValues( this.timeTicks )
 
         this.yAxis =
@@ -215,18 +217,24 @@ module.exports = Object.assign( {}, require('./__proto__'), {
         Object.keys( this.valuesByTick ).forEach( i => this.valuesByTick[i].sort( ( a, b ) => a - b ) )
     },
 
+    handleHourlyTimeScale() {
+        this.timeScale = this.d3.linearScale()
+            .domain( [ 0, this.opts.dates.to.diff( this.opts.dates.from, 'hours' ) ] )
+            .range( [ 0, this.boundingWidth - 100 ] )
+
+        this.timeTicks = this.d3.timeHour.every(6)
+    },
+
     setTimeScale() {
-        const dayDiff = this.opts.dates.to.diff( this.opts.dates.from, 'd' )
+        //const dayDiff = this.opts.dates.to.diff( this.opts.dates.from, 'd' )
+
+        //if( dayDiff < 3 ) return this.handleHourlyTimeScale()
 
         this.timeScale = this.d3.scaleTime()
             .domain( [ this.opts.dates.from.toDate(), this.opts.dates.to.toDate() ] )
             .range( [ 0, this.boundingWidth - 100 ] )
-       
-       console.log( dayDiff ); 
-        this.timeTicks =
-            ( dayDiff ) < 5
-                ? this.timeScale.ticks( dayDiff )
-                : this.timeScale.ticks(7)
+      
+        this.timeTicks = this.timeScale.ticks(7)
     },
 
     scaleGraph( opts={} ) {
