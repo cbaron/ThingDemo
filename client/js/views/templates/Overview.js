@@ -1,6 +1,6 @@
 module.exports = p =>
 `<div>
-    <div data-js="widgets"></div>
+    <div class="widgets" data-js="widgets"></div>
     <div class="user-data-row clearfix">
         <div>
             <span class="label">Users</span>

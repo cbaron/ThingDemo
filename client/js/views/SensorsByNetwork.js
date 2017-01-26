@@ -1,46 +1,82 @@
 module.exports = Object.assign( {}, require('./__proto__'), {
 
-    d3: Object.assign( require('d3-shape') ),
-
-    postRender() {
+    computeSizes() {
         this.height = this.els.chart.clientHeight 
         this.width = this.els.chart.clientWidth 
-        this.diameter = this.height - this.width > 0 ? this.width * .75 : this.height * .75
-        const radius = this.diameter / 2
+        this.radius = ( this.height - this.width > 0 ? this.width * .75 : this.height * .75 ) / 2
+    },
 
-        this.arc =
+    computeTranslation() {
+        return [
+            this.radius + ( ( this.width - ( this.radius * 2 ) ) / 2 ),
+            this.radius + ( ( this.height - ( this.radius * 2 ) ) / 2 )
+        ]
+    },
+
+    d3: Object.assign( require('d3-shape'), require('d3-selection') ),
+
+    draw() {
+        const arc =
             this.d3.arc()
             .innerRadius( 0 )
-            .outerRadius( radius )
+            .outerRadius( this.radius )
+              
+        this.group = this.d3.select( this.els.group )
 
-        this.arcs = [ ]
+        const translation = this.computeTranslation()
 
-        this.model = Object.create( this.Model, { resource: { value: 'sensorsByNetwork' } } )
+        this.group.attr( 'transform', `translate( ${translation[0]}, ${translation[1]} )` )
 
-        this.model.get()
-        .then( () => {
-
-            const els = this.d3.pie()( this.model.data.map( data => data.count ) ).map( ( pieSlice, i ) => {
+        this.d3.pie()( this.model.data.map( data => data.count ) )
+            .map( ( pieSlice, i ) => {
                 const args = { startAngle: pieSlice.startAngle, endAngle: pieSlice.endAngle },
-                      path = this.arc( args ),
-                      centroid = this.arc.centroid( args )
+                      centroid = arc.centroid( args )
 
-                return `<path class="${this.model.data[i].name}" d="${path}"></path>` +
-                       `<text text-anchor="middle" x="${centroid[0]}" y="${centroid[1]}">${this.model.data[i].label}</text>` 
-            } ).join('')
+                this.group.append( 'path' )
+                    .attr( 'd', arc( args ) )
+                    .attr( 'class', this.model.data[i].name )
+                
+                this.group.append( 'text' )
+                    .attr( 'text-anchor', 'middle' )
+                    .attr( 'x', centroid[0] )
+                    .attr( 'y', centroid[1] )
+                    .text( this.model.data[i].label )
+            } )
 
-            this.slurpTemplate( { template: `<svg version="1.1"><g transform="translate(${radius},${radius})">${els}</g></svg>`, insertion: { el: this.els.chart } } )
+        this.originalRadius = this.radius
 
-            this.size()    
-        } )
+        return Promise.resolve( this.rendered = true )
+    },
+
+    getData() {
+        if( !this.model ) this.model = Object.create( this.Model, { resource: { value: 'sensorsByNetwork' } } )
+
+        return this.model.get()
+    },
+
+    postRender() {
+        this.computeSizes()
+
+        this.getData()
+        .then( () => this.draw() )
         .catch( this.Error )
 
         return this
     },
 
+    redraw() {
+        
+    },
+
     size() {
-        if( this.diameter ) {
-            //this.els.chart.firstChild.style.height = `${this.diameter}px`
+        if( this.rendered ) {
+            this.computeSizes()
+
+            const ratio = this.radius / this.originalRadius
+            const translation = this.computeTranslation()
+
+            this.group.attr( `transform`, `translate( ${translation[0]}, ${translation[1]} ) scale( ${ratio}, ${ratio} )` )
         }
+        return true
     }
 } )

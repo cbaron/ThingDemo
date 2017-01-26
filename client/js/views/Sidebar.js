@@ -13,17 +13,27 @@ module.exports = Object.assign( {}, require('./__proto__'), {
     ],
 
     onListClick( e ) {
-        const itemEl = e.target.tagName === "LI" ? e.target : e.target.closest('li')
+        const itemEl = e.target.tagName === "LI" ? e.target : e.target.closest('li'),
+              name = itemEl.getAttribute('data-name')
+
+        this.onNavigation( name )
+
+        this.emit( 'navigate', `/${name}` )
+    },
+
+    onNavigation( name ) {
+        const el = this.els.list.querySelector( `li[data-name="${name}"]` )
+
+        if( !el ) return 
 
         if( this.selectedEl ) this.selectedEl.classList.remove('selected')
-        itemEl.classList.add('selected')
 
-        this.selectedEl = itemEl
-        this.emit( 'navigate', `/${itemEl.getAttribute('data-name')}` )
+        el.classList.add('selected')
+        this.selectedEl = el
     },
 
     size() {
-        this.els.list.style.height = `${this.els.container.clientHeight - this.els.header.clientHeight}px`
+        //this.els.list.style.height = `${this.els.container.clientHeight - this.els.header.clientHeight}px`
         return true
     }
 } )

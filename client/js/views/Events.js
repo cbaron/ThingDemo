@@ -1,5 +1,10 @@
 module.exports = Object.assign( {}, require('./__proto__'), {
 
+    computeSizes() {
+        this.graphHeight = this.els.graph.clientHeight
+        this.graphWidth = this.els.graph.clientWidth
+    },
+
     Moment: require('moment'),
     
     d3: Object.assign( require('d3-shape'), require('d3-scale'), require('d3-axis'), require('d3-selection'), require('d3-time-format') ),
@@ -38,8 +43,7 @@ module.exports = Object.assign( {}, require('./__proto__'), {
     },
 
     postRender() {
-        this.graphHeight = this.els.graph.clientHeight
-        this.graphWidth = this.els.graph.clientWidth
+        this.computeSizes()
 
         this.setTimeScale()
         
@@ -51,6 +55,11 @@ module.exports = Object.assign( {}, require('./__proto__'), {
             this.setLines()
 
             this.setAreas()
+
+            this.originalHeight = this.graphHeight
+            this.originalWidth = this.graphWidth
+
+            return Promise.resolve( this.rendered = true )
         } )
         .catch( this.Error )
 
@@ -85,11 +94,15 @@ module.exports = Object.assign( {}, require('./__proto__'), {
                 .domain( this.valueRange.reverse() )
                 .range( [ 0, this.graphHeight - 40 ] )
 
+        console.log( this.timeScale.ticks(6) )
+
         this.xAxis =
             this.d3.axisBottom( this.timeScale )
                 .tickFormat( this.d3.timeFormat( '%Y-%m-%d' ) )
+                .tickValues( this.timeScale.ticks(6) )
                 .tickSizeOuter(0)
 
+        console.log(this.valueScale.ticks(8))
         this.yAxis =
             this.d3.axisLeft( this.valueScale )
                 .tickValues( this.valueScale.ticks(8) )
@@ -110,6 +123,10 @@ module.exports = Object.assign( {}, require('./__proto__'), {
             
         this.d3.selectAll( '.y-axis text' )
         .attr( 'transform', `translate( ${this.graphWidth - 60}, 0 )` )
+       
+        this.d3.selectAll( '.x-axis text' )
+        .attr( 'x', this.timeScale( this.timeTicks[1]) - this.timeScale( this.timeTicks[1] ) / 2 )
+        .attr( 'y', 6 )
 
         this.yTranslation = this.graphHeight - this.els.yAxis.getBBox().height - 20
            
@@ -177,4 +194,18 @@ module.exports = Object.assign( {}, require('./__proto__'), {
 
         this.timeTicks = this.timeScale.ticks()
     },
+
+    size() {
+        console.log('ad')
+        if( this.rendered ) {
+            console.log('aascd')
+            this.computeSizes()
+
+            console.log('aascdqopqpqpqp')
+            const ratio = [ this.graphWidth / this.originalWidth, this.graphHeight / this.originalHeight ]
+
+            this.d3.select( this.els.scale ).attr( `transform`, `scale( ${ratio[0]}, ${ratio[1]} )` )
+        }
+        return true
+    }
 } )

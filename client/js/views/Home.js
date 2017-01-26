@@ -4,10 +4,13 @@ module.exports = Object.assign( {}, require('./__proto__'), {
     
     onNavigation( path ) {
         const name = path[0]
+        let promiseChain = undefined
 
         if( this.currentView === name ) return
+
+        this.views.sidebar.onNavigation( name )
        
-        let promiseChain = ( this.currentView ? this.views[ this.currentView ].hide() : Promise.resolve() ).then( () => Promise.resolve( this.currentView = name ) )
+        promiseChain = ( this.currentView ? this.views[ this.currentView ].hide() : Promise.resolve() ).then( () => Promise.resolve( this.currentView = name ) )
 
         if( this.views[ name ] ) return promiseChain.then( () => this.views[ name ].show() ).catch( this.Error )
 
@@ -41,6 +44,7 @@ module.exports = Object.assign( {}, require('./__proto__'), {
     
     size() {
         if( this.views.api ) this.views.api.setHeight( this.getHeight() )
+        if( this.views.geo ) this.views.geo.setHeight( this.getHeight() )
         return true
     }
 
