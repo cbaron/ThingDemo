@@ -41,10 +41,7 @@
   stroke-width: 2;
 }
 .Events svg .x-axis {
-  font-size: 0.75rem;
-}
-.Events svg .x-axis .tick:last-child text {
-  display: none;
+  font-size: 0.5rem;
 }
 .Events svg .points .senet,
 .Events svg .lines .senet {

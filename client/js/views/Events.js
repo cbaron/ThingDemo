@@ -22,6 +22,13 @@ module.exports = Object.assign( {}, require('./__proto__'), {
         return JSON.stringify( [ firstTick.toDate() ].concat( this.timeTicks ) )
     },
 
+    getLastTimeTick() {
+        const lastTick = this.Moment( this.timeTicks[ this.timeTicks.length -1 ] )
+        lastTick.add( lastTick.diff( this.Moment( this.timeTicks[ this.timeTicks.length - 2 ] ), 'ms' ) )
+
+        return lastTick.toDate()
+    },
+
     handleData() {
         return this.Xhr( { method: 'get', resource: 'eventCounts', qs: this.generateQs() } )
         .then( data => {
@@ -78,7 +85,7 @@ module.exports = Object.assign( {}, require('./__proto__'), {
             } )
 
         this.d3.select(this.els.areas)
-            .attr( 'transform', `translate( 41, ${this.yTranslation} )` )
+            .attr( 'transform', `translate( ${41 + this.xTranslation}, ${this.yTranslation} )` )
 
         Object.keys( this.dataByNetwork ).forEach( network => {
             this.d3.select(this.els.areas)
@@ -94,15 +101,11 @@ module.exports = Object.assign( {}, require('./__proto__'), {
                 .domain( this.valueRange.reverse() )
                 .range( [ 0, this.graphHeight - 40 ] )
 
-        console.log( this.timeScale.ticks(6) )
-
         this.xAxis =
             this.d3.axisBottom( this.timeScale )
                 .tickFormat( this.d3.timeFormat( '%Y-%m-%d' ) )
-                .tickValues( this.timeScale.ticks(6) )
-                .tickSizeOuter(0)
+                .tickValues( this.timeTicks )
 
-        console.log(this.valueScale.ticks(8))
         this.yAxis =
             this.d3.axisLeft( this.valueScale )
                 .tickValues( this.valueScale.ticks(8) )
@@ -124,8 +127,13 @@ module.exports = Object.assign( {}, require('./__proto__'), {
         this.d3.selectAll( '.y-axis text' )
         .attr( 'transform', `translate( ${this.graphWidth - 60}, 0 )` )
        
+        this.xTranslation = this.timeScale( this.timeTicks[1] ) / 2
+
+        const xAxisPath = this.d3.select('.x-axis .domain')
+        xAxisPath.attr( 'd', `${xAxisPath.attr( 'd' )}M${this.timeScale( this.timeTicks[ this.timeTicks.length - 1 ] )},0.5h${this.xTranslation*2}V6` )
+
         this.d3.selectAll( '.x-axis text' )
-        .attr( 'x', this.timeScale( this.timeTicks[1]) - this.timeScale( this.timeTicks[1] ) / 2 )
+        .attr( 'x', this.xTranslation )
         .attr( 'y', 6 )
 
         this.yTranslation = this.graphHeight - this.els.yAxis.getBBox().height - 20
@@ -158,10 +166,10 @@ module.exports = Object.assign( {}, require('./__proto__'), {
         this.valuesByTick = { }
         
         this.d3.select(this.els.points)
-            .attr( 'transform', `translate( 41, ${this.yTranslation} )` )
+            .attr( 'transform', `translate( ${41 + this.xTranslation}, ${this.yTranslation} )` )
         
         this.d3.select(this.els.lines)
-            .attr( 'transform', `translate( 41, ${this.yTranslation} )` )
+            .attr( 'transform', `translate( ${41 + this.xTranslation}, ${this.yTranslation} )` )
 
         Object.keys( this.dataByNetwork ).forEach( network => {
             
@@ -190,13 +198,12 @@ module.exports = Object.assign( {}, require('./__proto__'), {
     setTimeScale() {
         this.timeScale = this.d3.scaleTime()
             .domain( [ this.opts.dates.from.toDate(), this.opts.dates.to.toDate() ] )
-            .range( [ 0, this.graphWidth - 60 ] )
+            .range( [ 0, this.graphWidth - 100 ] )
 
-        this.timeTicks = this.timeScale.ticks()
+        this.timeTicks = this.timeScale.ticks(9)
     },
 
     size() {
-        console.log('ad')
         if( this.rendered ) {
             console.log('aascd')
             this.computeSizes()
