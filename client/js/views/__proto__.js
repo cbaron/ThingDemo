@@ -2,6 +2,12 @@ module.exports = Object.assign( { }, require('../../../lib/MyObject'), require('
 
     Model: require('../models/__proto__'),
 
+    NumberFormat: new Intl.NumberFormat( 'en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 2
+    } ),
+
     OptimizedResize: require('./lib/OptimizedResize'),
     
     Xhr: require('../Xhr'),

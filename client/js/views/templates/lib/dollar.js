@@ -1,5 +1,5 @@
 module.exports = `<svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-	 width="611.994px" height="611.994px" viewBox="0 0 611.994 611.994" style="enable-background:new 0 0 611.994 611.994;"
+	 width="611.994px" height="611.994px" viewBox="0 0 611.994 611.994"
 	 xml:space="preserve">
 <g>
     <path d="M306.009,481.303c-55.595,0-100.833-42.621-100.833-95.004c0-8.122,6.581-14.703,14.703-14.703

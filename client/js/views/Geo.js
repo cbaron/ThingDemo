@@ -34,31 +34,37 @@ module.exports = Object.assign( {}, require('./__proto__'), {
     initMap() {
 
         this.map = new google.maps.Map( this.els.container, {
-          center: { lat: 39.9505611, lng: -75.1947014 },
+          center: { lat: 39.9505611, lng: -75.1937014 },
           disableDefaultUI: true,
-          zoom: 18
+          zoom: 19
         } )
 
-        this.data.forEach( datum => {
-            datum.icon = {
-                path: this.carPath,
-                fillColor: datum.isOpen ? 'gray' : 'green',
-                fillOpacity: .6,
-                anchor: new google.maps.Point(0,0),
-                strokeWeight: 0,
-                scale: .03
-            }
-
-            datum.marker = new google.maps.Marker( {
-                position: { lat: datum.lat, lng: datum.lng },
-                map: this.map,
-                draggable: false,
-                icon: datum.icon
-            } );
-        } )
-
-        setInterval( () => this.toggleRandomSpot(), 2000 )
+        this.model.get()
+        .then( data =>
+            data.forEach( datum =>
+                new google.maps.Marker( {
+                    position: { lat: datum.location[1], lng: datum.location[0] },
+                    map: this.map,
+                    draggable: false,
+                    icon: this.getIcon( datum.data )
+                } )
+            )
+        )
+        .catch( this.Error )
     },
+
+    getIcon( data ) {
+        return {
+            path: this.carPath,
+            fillColor: data.isAvailable ? 'gray' : 'green',
+            fillOpacity: .6,
+            anchor: new google.maps.Point(0,0),
+            strokeWeight: 0,
+            scale: .075
+        }
+    },
+
+    model: Object.create( require( '../models/Geo' ) ),
 
     postRender() {
 

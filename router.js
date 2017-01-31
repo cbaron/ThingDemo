@@ -51,7 +51,9 @@ module.exports = Object.create( Object.assign( {}, require('./lib/MyObject'), {
 
     resourceToFile: {
         eventCounts:      'eventCounts',
-        sensorsByNetwork: 'sensorsByNetwork'
+        geo:              'geo',
+        sensorsByNetwork: 'sensorsByNetwork',
+        widgets:          'widgets'
     },
 
     rest( request, response, path, qs ) {
