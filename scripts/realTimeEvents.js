@@ -2,74 +2,66 @@
 
 require('node-env-file')( `${__dirname}/../.env` )
 
-const Io = require('socket.io-client')(`http:${process.env.DOMAIN`),
-      Postgres = require('../dal/Postgres')
-      now = new Date().getTime(),
-      maxMinutes = 30
+function getRandomInt( min, max ) { return Math.floor( Math.random() * (max - min + 1 ) ) + min }
 
-getRandomPercentile => Math.floor( Math.random() * 100 )
-
-insert = row => Postgres.query( `INSERT INTO event ( data, "sensorId", created ) VALUES ( '${ row.data }`, ${row.sensorId}, ${row.created} )` )
-                .then( () => Io.emit( 'eventCreated', { JSON.parse( data ), sensorId: row.sensorId } )
-                .catch( e => `Error creating event ${ e.stack || e }` )
-
-determineFuture = ( sensorId, event ) => ( event )
-    ? Postgres.query( `SELECT
-
+function insert( row ) {
+    return Postgres.query( `INSERT INTO event ( data, "sensorId", created ) VALUES ( '${ JSON.stringify( row.data ) }', ${row.sensorId}, '${row.created.toISOString()}' )` )
+    .then( () => { Io.emit( 'eventCreated', { data: row.data, sensorId: row.sensorId } ); return Promise.resolve() } )
 }
 
-                
-    Promise.all( [
-        Postgres.query( `SELECT id FROM sensor ORDER BY id` ),
-        Postgres.query( `SELECT * FROM futurevents ORDER BY "sensorId"` )
-    ] )
-    .then( ( [ sensor, futurevents ] ) =>
-        Promise.all(
-            sensor.rows.map( sensor => {
-                const event = futurevents.rows.find( row => row.sensorId === sensor.id ),
-                      toFire = Boolean( event && new Date( event.created ).getTime() < now )
-                
-                if( toFire ) insert( event )
-                            
-                if( event === undefined || toFire ) determineFuture( sensor.id, event )
-            } )
-            
-            result.rows.map( row =>e.data, e."sensorId", e.created FROM event e JOIN ( SELECT "sensorId", MAX( created ) as created FROM event GROUP BY "sensorId" ) e2 ON e."sensorId" = e2."sensorId" AND e.created = e2.created` )
+function determineFuture( sensorId, event ) {
+  return ( event
+    ? Promise.resolve(event)
+    : Postgres.query(
+        `SELECT e.data FROM event e ` +
+        `JOIN ( SELECT "sensorId", MAX( created ) as created FROM event WHERE "sensorId" = ${sensorId} GROUP BY "sensorId" ) e2 ` +
+        `ON e."sensorId" = e2."sensorId" AND e.created = e2.created` ).then( result => ( { data: result.rows[0].data } ) )
+  ).then( event => {
+      const data = { isAvailable: !event.data.isAvailable },
+            created = new Date( new Date().getTime() + ( getRandomInt( 1, 25 ) * 60 * 1000 ) + ( getRandomInt( 1, 60 ) * 1000 ) )
+      futureEvents[ sensorId ] = { sensorId, data, created }
+      return Promise.resolve( created.getTime() )
+  } )
+}
 
-    Postgres.query( `SELECT e.data, e."sensorId", e.created FROM event e JOIN ( SELECT "sensorId", MAX( created ) as created FROM event GROUP BY "sensorId" ) e2 ON e."sensorId" = e2."sensorId" AND e.created = e2.created` )
-    .then( result =>
-        result.rows.forEach( row => {
-            const diff = Math.floor( ( ( now - new Date( row.created ).getTime() ) / 1000 ) * 60 )
+function app( sleepTime ) {
+    setTimeout( () => {
+        const now = new Date().getTime()
+        let newSleepTime = Infinity
 
-            if( ( diff > 25 ) || ( ( diff * 4 ) > getRandomPercentile() ) ) insert( row )
+        return Postgres.query( `SELECT id FROM sensor ORDER BY id` )
+        .then( sensor =>
+            Promise.all(
+                sensor.rows.map( sensor => {
+                    const event = futureEvents[ sensor.id ],
+                          created = event ? event.created.getTime() : undefined
+                          toFire = Boolean( event && ( created < now ) )
+
+                   
+                    if( toFire ) {
+                        return insert( event )
+                        .then( () => determineFuture( sensor.id, event ) } )
+                        .then( created => Promise.resolve( newSleepTime = ( created < newSleepTime ) ? created : newSleepTime ) )
+                    } else if( event === undefined ) {
+                        return determineFuture( sensor.id, event )
+                        .then( created => Promise.resolve( newSleepTime = ( created < newSleepTime ) ? created : newSleepTime ) )
+                    } else {
+                        return Promise.resolve( newSleepTime = ( created < newSleepTime ) ? created : newSleepTime )
+                    }
+                } )
+            )
+            .then( () => Promise.resolve( newSleepTime ) )
+        )
+        .then( newSleepTime => {
+            return Promise.resolve( app( newSleepTime - now ) )
         } )
-    )
-            
+        .catch( e => { console.log( e.stack || e ); process.exit(1) } )
+    }, sleepTime )
+}
 
+const Io = require('socket.io-client')(`http://${process.env.DOMAIN}:${process.env.PORT}`),
+      Postgres = require('../dal/Postgres')
+      maxMinutes = 30,
+      futureEvents = { };
 
-
-const Postgres = require('../dal/Postgres'),
-      Moment = require('moment'),
-      start = Moment.utc( process.argv[3] )
-
-let count = process.argv[2]
-
-Postgres.query( `SELECT * FROM sensor` )
-.then( result => {
-    let sensors = result.rows.map( row => Object.assign( row, { events: [ ] } ) )
-
-    while( count > 0 ) {
-        let sensor = sensors[ Math.floor( Math.random() * sensors.length ) ]
-        const lastEvent = sensor.events.length ? sensor.events[ sensor.events.length - 1 ] : start
-        sensor.events.push( Moment( lastEvent ).add( getRandomInt( 1, 480 ), 'm' ) )
-        count--
-    }
-
-    return Promise.all( sensors.map( sensor =>
-        Promise.all( sensor.events.map( ( moment, i ) =>
-            Postgres.query( `INSERT INTO event( "sensorId", data, created ) VALUES ( ${sensor.id}, '${ JSON.stringify( { isAvailable: Boolean( i % 2 ) } ) }', '${moment.toISOString()}' )` )
-        ) )
-    ) )
-} )
-.catch( e => console.log( e.stack || e ) )
-.then( () => process.exit(0) )
+app(0);

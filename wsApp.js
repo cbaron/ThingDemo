@@ -7,13 +7,11 @@ module.exports = Object.create( Object.assign( { }, require('./lib/MyObject'), {
         this.io.on( 'connection', socket => {
 
           socket.on( 'eventCreated', ( data, callback ) => {
-              this.io.emit( 'eventCreatedCreated', data )
-              callback()
+              this.io.emit( 'eventCreated', data )
           } )
 
           socket.on( 'apiMatch', ( data, callback ) => {
               this.io.emit( 'apiMatched', data )
-              callback()
           } )
 
         } )

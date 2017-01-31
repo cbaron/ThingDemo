@@ -20,7 +20,7 @@ module.exports = Object.assign( { }, require('./__proto__'), {
                     sensorsActive: totalSensors,
                     openSpaces: currentData.open, 
                     occupiedSpaces: currentData.occupied,
-                    revenue: parseFloat( totalEvents ) * 1.1 )
+                    revenue: parseFloat( totalEvents ) * 1.1
                 }
             } )
         } )
