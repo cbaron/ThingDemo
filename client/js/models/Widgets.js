@@ -11,7 +11,7 @@ module.exports = Object.assign( {}, require('./__proto__'), {
             this.data.occupiedSpaces += 1
         }
 
-        this.data.totalEvents +=1 
+        this.data.totalEvents = parseInt( this.data.totalEvents ) + 1 
 
     },
 

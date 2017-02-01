@@ -58,7 +58,6 @@ module.exports = Object.assign( {}, require('./__proto__'), {
             this.populate( data )
             
             this.Io().on( 'eventCreated', data => {
-                console.log( data )
                 this.widgetsModel.handleEvent( data )
                 this.populate( this.widgetsModel.data )
             } )
