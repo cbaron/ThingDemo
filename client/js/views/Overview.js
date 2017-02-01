@@ -1,5 +1,7 @@
 module.exports = Object.assign( {}, require('./__proto__'), {
 
+    Io: require('socket.io-client'),
+
     Moment: require('moment'),
 
     Views: {
@@ -13,8 +15,17 @@ module.exports = Object.assign( {}, require('./__proto__'), {
 
         this.views.events.onDateChange( el, e )
 
-        this.updateWidgets()
+        //this.updateWidgets()
 
+    },
+
+    populate( data ) {
+        this.widgetViews.events.value( parseInt( data.totalEvents ).toLocaleString() )
+        this.widgetViews.nodes.value( parseInt( data.sensorNodes ).toLocaleString() )
+        this.widgetViews.activeNodes.value( parseInt( data.sensorsActive ).toLocaleString() )
+        this.widgetViews.openSpaces.value( parseInt( data.openSpaces ).toLocaleString() )
+        this.widgetViews.occupiedSpaces.value( parseInt( data.occupiedSpaces ).toLocaleString() )
+        this.widgetViews.revenue.value( this.NumberFormat.format( data.revenue  ) )
     },
 
     postRender() {
@@ -44,12 +55,13 @@ module.exports = Object.assign( {}, require('./__proto__'), {
     updateWidgets() {
         this.widgetsModel.get( { query: { dates: { to: this.opts.dates.to.toISOString(), from: this.opts.dates.from.toISOString() } } } )
         .then( data => {
-            this.widgetViews.events.value( parseInt( data.totalEvents ).toLocaleString() )
-            this.widgetViews.nodes.value( parseInt( data.sensorNodes ).toLocaleString() )
-            this.widgetViews.activeNodes.value( parseInt( data.sensorsActive ).toLocaleString() )
-            this.widgetViews.openSpaces.value( parseInt( data.openSpaces ).toLocaleString() )
-            this.widgetViews.occupiedSpaces.value( parseInt( data.occupiedSpaces ).toLocaleString() )
-            this.widgetViews.revenue.value( this.NumberFormat.format( data.revenue  ) )
+            this.populate( data )
+            
+            this.Io().on( 'eventCreated', data => {
+                console.log( data )
+                this.widgetsModel.handleEvent( data )
+                this.populate( this.widgetsModel.data )
+            } )
         } )
         .catch( this.Error )
     }

@@ -15,10 +15,10 @@ function determineFuture( sensorId, event ) {
     : Postgres.query(
         `SELECT e.data FROM event e ` +
         `JOIN ( SELECT "sensorId", MAX( created ) as created FROM event WHERE "sensorId" = ${sensorId} GROUP BY "sensorId" ) e2 ` +
-        `ON e."sensorId" = e2."sensorId" AND e.created = e2.created` ).then( result => ( { data: result.rows[0].data } ) )
+        `ON e."sensorId" = e2."sensorId" AND e.created = e2.created` ).then( result => ( { data: JSON.parse( result.rows[0].data ) } ) )
   ).then( event => {
       const data = { isAvailable: !event.data.isAvailable },
-            created = new Date( new Date().getTime() + ( getRandomInt( 1, 25 ) * 60 * 1000 ) + ( getRandomInt( 1, 60 ) * 1000 ) )
+            created = new Date( new Date().getTime() + ( getRandomInt( 1, 10 ) * 60 * 1000 ) + ( getRandomInt( 1, 60 ) * 1000 ) )
       futureEvents[ sensorId ] = { sensorId, data, created }
       return Promise.resolve( created.getTime() )
   } )
@@ -40,7 +40,7 @@ function app( sleepTime ) {
                    
                     if( toFire ) {
                         return insert( event )
-                        .then( () => determineFuture( sensor.id, event ) } )
+                        .then( () => determineFuture( sensor.id, event ) )
                         .then( created => Promise.resolve( newSleepTime = ( created < newSleepTime ) ? created : newSleepTime ) )
                     } else if( event === undefined ) {
                         return determineFuture( sensor.id, event )
@@ -52,9 +52,7 @@ function app( sleepTime ) {
             )
             .then( () => Promise.resolve( newSleepTime ) )
         )
-        .then( newSleepTime => {
-            return Promise.resolve( app( newSleepTime - now ) )
-        } )
+        .then( newSleepTime => Promise.resolve( app( newSleepTime - now ) ) )
         .catch( e => { console.log( e.stack || e ); process.exit(1) } )
     }, sleepTime )
 }

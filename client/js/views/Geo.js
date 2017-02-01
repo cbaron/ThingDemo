@@ -14,18 +14,30 @@ module.exports = Object.assign( {}, require('./__proto__'), {
 
         this.model.get()
         .then( data => {
+            
+            this.markers = { }
+            this.icons = { }
 
-            data.forEach( datum =>
-                new google.maps.Marker( {
-                    position: { lat: datum.location[1], lng: datum.location[0] },
-                    map: this.map,
-                    draggable: false,
-                    icon: this.getIcon( datum.data )
-                } )
-            )
+            data.forEach( datum => {
+                this.icons[ datum.id ] = this.getIcon( datum.data )
+
+                this.markers[ datum.id ] =
+                    new google.maps.Marker( {
+                        animation: google.maps.Animation.DROP,
+                        position: { lat: datum.location[1], lng: datum.location[0] },
+                        map: this.map,
+                        draggable: false,
+                        icon: this.icons[ datum.id ]
+                    } )
+            } )
        
             this.Io().on( 'eventCreated', data => {
-                console.log( data );
+                if( this.icons[ data.sensorId ] ) {
+                    this.icons[ data.sensorId ].fillColor = data.data.isAvailable ? 'gray' : 'green'
+                    this.markers[ data.sensorId ].set( 'icon', this.icons[ data.sensorId ] )
+                    this.markers[ data.sensorId ].setAnimation( google.maps.Animation.BOUNCE )
+                    setTimeout( () => this.markers[ data.sensorId ].setAnimation( null ), 3000 )
+                }
             } )
         } )
         .catch( this.Error )
@@ -57,14 +69,6 @@ module.exports = Object.assign( {}, require('./__proto__'), {
 
     setHeight( height ) {
         this.els.container.style.height = `${height}px`;
-    },
-
-    toggleRandomSpot() {
-        let datum = this.data[ Math.floor( Math.random() * this.data.length ) ]
-
-        datum.isOpen = !datum.isOpen
-        datum.icon.fillColor = datum.isOpen ? 'gray' : 'green'
-        datum.marker.set( 'icon', datum.icon )
     }
 
 } )
