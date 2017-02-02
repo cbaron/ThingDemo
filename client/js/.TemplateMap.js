@@ -4,6 +4,7 @@ module.exports={
 	Geo: require('./views/templates/Geo'),
 	Header: require('./views/templates/Header'),
 	Home: require('./views/templates/Home'),
+	Login: require('./views/templates/Login'),
 	Overview: require('./views/templates/Overview'),
 	SensorsByNetwork: require('./views/templates/SensorsByNetwork'),
 	Sidebar: require('./views/templates/Sidebar'),

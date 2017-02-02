@@ -18,5 +18,6 @@ module.exports = Object.create( {
 
 }, {
     Templates: { value: require('../.TemplateMap') },
+    User: { value: require('../models/User') },
     Views: { value: require('../.ViewMap') }
 } )

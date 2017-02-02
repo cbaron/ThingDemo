@@ -5,6 +5,8 @@ module.exports = Object.create( Object.assign( {}, require('../../lib/MyObject')
         constructor( data ) {
             let req = new XMLHttpRequest()
 
+            if( data.onProgress ) req.addEventListener( "progress", e => data.onProgress( e.lengthComputable ? e.loaded / e.total : 0 ) )
+
             return new Promise( ( resolve, reject ) => {
 
                 req.onload = function() {

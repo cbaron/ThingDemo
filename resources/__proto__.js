@@ -1,6 +1,6 @@
 module.exports = Object.assign( { }, require('../lib/MyObject'), {
     
-    JWS: require('jws'),
+    Jwt: require('./lib/Jwt'),
 
     Postgres: require('../dal/Postgres'),
 
@@ -39,19 +39,22 @@ module.exports = Object.assign( { }, require('../lib/MyObject'), {
         'Keep-Alive': 'timeout=50, max=100'
     },
 
-    makeToken( obj ) {
-        return new Promise( ( resolve, reject ) =>
-            this.JWS.createSign( {
-                header: { "alg": "HS256", "typ": "JWT" },
-                payload: JSON.stringify( obj ),
-                privateKey: process.env.JWS_SECRET
-            } )
-            .on( 'done', resolve )
-            .on( 'error', reject )
-        )
-    },
-
     notFound( stopChain=false ) { return this.respond( { stopChain, code: 404 } ) },
+
+    parseCookies( cookies ) {
+        var rv
+
+        if( ! cookies ) return ''
+
+        cookies.split(';').forEach( cookie => {
+            var parts = cookie.split('='),
+                name = parts.shift().trim()
+
+            if( name === process.env.COOKIE ) rv = parts.join('=')
+        } )
+
+        return rv
+    },
 
     respond( data ) {
         data.body = JSON.stringify( data.body || {} )

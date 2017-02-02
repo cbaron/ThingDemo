@@ -20,7 +20,10 @@ module.exports = Object.assign( { }, require('../../../lib/MyObject'), require('
     capitalizeFirstLetter: string => string.charAt(0).toUpperCase() + string.slice(1),
 
     constructor() {
-        return Object.assign( this, { els: { }, slurp: { attr: 'data-js', view: 'data-view' }, views: { } } ).render()
+
+        if( this.requiresLogin && (!this.user.data || !this.user.data.id ) ) return this.handleLogin()
+
+        return this.initialize().render()
     },
 
     delegateEvents( key, el ) {
@@ -59,6 +62,13 @@ module.exports = Object.assign( { }, require('../../../lib/MyObject'), require('
         )
     },
 
+    handleLogin() {
+        this.factory.create( 'login', { insertion: { value: { el: document.querySelector('#content') } } } )
+            .once( "loggedIn", () => this.onLogin() )
+
+        return this
+    },
+
     hide() {
         return new Promise( resolve => {
             if( !document.body.contains(this.els.container) || this.isHidden() ) return resolve()
@@ -74,6 +84,10 @@ module.exports = Object.assign( { }, require('../../../lib/MyObject'), require('
         range.selectNode(document.getElementsByTagName("div").item(0))
         return range.createContextualFragment( str )
     },
+
+    initialize() {
+        return Object.assign( this, { els: { }, slurp: { attr: 'data-js', view: 'data-view' }, views: { } } )
+    },
     
     isHidden() { return this.els.container.classList.contains('hidden') },
 
@@ -84,7 +98,7 @@ module.exports = Object.assign( { }, require('../../../lib/MyObject'), require('
     },
 
     onLogin() {
-        Object.assign( this, { els: { }, slurp: { attr: 'data-js', view: 'data-view' }, views: { } } ).render()
+        this.initialize().render()
     },
 
     onShown( resolve ) {
@@ -126,6 +140,8 @@ module.exports = Object.assign( { }, require('../../../lib/MyObject'), require('
 
         return this
     },
+
+    requiresLogin: true,
 
     show( duration ) {
         return new Promise( resolve => {

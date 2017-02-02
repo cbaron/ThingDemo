@@ -1,18 +1,3 @@
-@font-face {
-  font-family: 'Roboto';
-  font-weight: 400;
-  src: url("/static/font/Roboto-Regular.ttf") format('truetype');
-}
-@font-face {
-  font-family: 'Roboto-Bold';
-  font-weight: 700;
-  src: url("/static/fonts/Roboto-Bold.ttf") format('truetype');
-}
-@font-face {
-  font-family: 'Roboto-Light';
-  font-weight: 100;
-  src: url("/static/fonts/Roboto-Light.ttf") format('truetype');
-}
 .Api svg {
   height: 100%;
   width: 100%;
@@ -109,6 +94,86 @@
   -webkit-flex: 4 /* Chrome */;
   -ms-flex: 4 /* IE 10 */;
   flex: 4;
+}
+.Login {
+  margin-left: 33%;
+  margin-top: 5%;
+  width: 33%;
+}
+.Login >div:first-child {
+  padding: 0px 1rem;
+}
+.Login >div:nth-child(2) {
+  background-color: #fff;
+  border-radius: 5px;
+  margin: 1rem;
+  padding: 2rem 1rem 1rem 1rem;
+  position: relative;
+}
+.Login .heading {
+  background-color: #fff;
+  color: #007aff;
+  font-family: Lato;
+  left: 2rem;
+  margin-top: -0.75rem;
+  position: absolute;
+  padding: 0px 5px;
+}
+.Login .form-box {
+  border: 1px solid #e6e8e8;
+  border-radius: 5px;
+  margin-bottom: 1rem;
+  padding: 1.75rem 1.5rem;
+}
+.Login .form-group {
+  position: relative;
+}
+.Login .prompt {
+  font-size: 0.75rem;
+}
+.Login input {
+  background-color: #faffbd;
+  border: 1px solid #c8c7cc;
+  font-family: Raleway;
+  font-size: 0.75rem;
+  padding: 0.5rem 0 0.5rem 30px;
+  margin: 1rem 0px;
+  width: 100%;
+}
+.Login svg {
+  fill: #007aff;
+  position: absolute;
+  height: 0.75rem;
+  width: 0.5rem;
+}
+.Login svg.lock,
+.Login svg.user {
+  top: 1.6rem;
+  left: 0.75rem;
+}
+.Login svg.arrow {
+  fill: #fff;
+  right: 0.5rem;
+  top: 0.6rem;
+}
+.Login button {
+  background-color: #007aff;
+  color: #fff;
+  cursor: pointer;
+  float: right;
+  font-size: 0.8rem;
+  margin: 0px;
+  position: relative;
+}
+.Login button.submitting {
+  background-color: #66afff;
+}
+.Login button span {
+  margin-right: 0.5rem;
+}
+.Login .copyright {
+  font-size: 0.75rem;
+  text-align: center;
 }
 .Overview {
   background-color: #f7f7f8;
@@ -255,6 +320,54 @@
   color: #aeacb4;
   font-size: 0.75rem;
 }
+@font-face {
+  font-family: 'Roboto';
+  font-weight: normal;
+  src: url("/static/font/Roboto-Regular.ttf") format('truetype');
+}
+@font-face {
+  font-family: 'Roboto';
+  font-weight: 700;
+  src: url("/static/font/Roboto-Bold.ttf") format('truetype');
+}
+@font-face {
+  font-family: 'Roboto';
+  font-weight: 300;
+  src: url("/static/font/Roboto-Light.ttf") format('truetype');
+}
+@font-face {
+  font-family: 'Lato';
+  font-weight: 700;
+  font-style: normal;
+  src: local('Lato Bold'), local('Lato-Bold'), url("/static/font/Lato-Bold.ttf") format('truetype');
+}
+@font-face {
+  font-family: 'Lato';
+  font-weight: 300;
+  font-style: normal;
+  src: local('Lato Light'), local('Lato-Light'), url("/static/font/Lato-Light.ttf") format('truetype');
+}
+@font-face {
+  font-family: 'Lato';
+  font-weight: normal;
+  font-style: normal;
+  src: local('Lato Regular'), local('Lato-Regular'), url("/static/font/Lato-Regular.ttf") format('truetype');
+}
+@font-face {
+  font-family: 'Raleway';
+  font-weight: 400;
+  src: url("/static/font/Raleway-Regular.ttf") format('truetype');
+}
+@font-face {
+  font-family: 'Raleway';
+  font-weight: 700;
+  src: url("/static/font/Raleway-Bold.ttf") format('truetype');
+}
+@font-face {
+  font-family: 'Raleway';
+  font-weight: 100;
+  src: url("/static/font/Raleway-Light.ttf") format('truetype');
+}
 html {
   font-size: 100%;
   height: 100%;
@@ -265,12 +378,16 @@ html {
   box-sizing: border-box;
 }
 body {
+  background-color: #f8f8f8;
+  color: #8e8e93;
   height: 100%;
   font-family: Helvetica, Arial, sans-serif;
   font-size: 1rem;
   font-weight: 400;
   line-height: 1.5;
   margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 h1,
 h2,

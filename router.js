@@ -27,7 +27,7 @@ module.exports = Object.create( Object.assign( {}, require('./lib/MyObject'), {
 
         ( path[0] === "static"
             ? this.static( request, response, path )
-            : ( /application\/json/.test( request.headers.accept ) && this.resourceToFile[ path[0] ] )
+            : ( /application\/json/.test( request.headers.accept ) )
                 ? this.rest( request, response, path, qs )
                 : this.html( request, response )
         )
@@ -52,6 +52,7 @@ module.exports = Object.create( Object.assign( {}, require('./lib/MyObject'), {
     resourceToFile: {
         eventCounts:      'eventCounts',
         geo:              'geo',
+        me:               'me',
         sensorsByNetwork: 'sensorsByNetwork',
         widgets:          'widgets'
     },
