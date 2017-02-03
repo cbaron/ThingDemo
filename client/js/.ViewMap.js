@@ -8,5 +8,6 @@ module.exports={
 	Overview: require('./views/Overview'),
 	SensorsByNetwork: require('./views/SensorsByNetwork'),
 	Sidebar: require('./views/Sidebar'),
+	Toast: require('./views/Toast'),
 	Widget: require('./views/Widget')
 }

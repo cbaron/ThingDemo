@@ -1,3 +1,3 @@
 require('./polyfill')
 window.initMap = () => true
-window.onload = () => require('./router')
+window.onload = () => require('./router') 

@@ -9,7 +9,7 @@ module.exports = Object.assign( { }, require('../../../lib/MyObject'), require('
     } ),
 
     OptimizedResize: require('./lib/OptimizedResize'),
-    
+
     Xhr: require('../Xhr'),
 
     bindEvent( key, event ) {

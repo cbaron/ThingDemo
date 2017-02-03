@@ -3,9 +3,11 @@ module.exports = Object.create( {
     create( name, opts ) {
         const lower = name
         name = name.charAt(0).toUpperCase() + name.slice(1)
+        console.log(this.Toast);
         return Object.create(
             this.Views[ name ],
             Object.assign( {
+                Toast: { value: this.Toast },
                 name: { value: name },
                 factory: { value: this },
                 template: { value: this.Templates[ name ] },
@@ -18,6 +20,7 @@ module.exports = Object.create( {
 
 }, {
     Templates: { value: require('../.TemplateMap') },
+    Toast: { value: require('../views/Toast') },
     User: { value: require('../models/User') },
     Views: { value: require('../.ViewMap') }
 } )

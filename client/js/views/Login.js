@@ -15,7 +15,7 @@ module.exports = Object.assign( {}, require('./__proto__'), {
         .then( () => this.user.get() )
         .then( () => this.hide() )
         .then( () => Promise.resolve( this.emit( 'loggedIn' )) )
-        .catch( this.Error )
+        .catch( e => { this.Error(e); this.Toast.showError('Unknown server error') } )
         .then( () => this.els.submit.classList.remove('submitting') )
     },
 
@@ -24,4 +24,5 @@ module.exports = Object.assign( {}, require('./__proto__'), {
     },
 
     requiresLogin: false
+
 } )
