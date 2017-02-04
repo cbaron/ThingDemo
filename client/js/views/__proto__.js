@@ -143,7 +143,7 @@ module.exports = Object.assign( { }, require('../../../lib/MyObject'), require('
 
     requiresLogin: true,
 
-    show( duration ) {
+    show() {
         this.els.container.classList.remove( 'hidden' )
         
         return new Promise( resolve => {

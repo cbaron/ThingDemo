@@ -15,11 +15,12 @@ module.exports = Object.assign( {}, require('./__proto__'), {
         .then( () => this.user.get() )
         .then( () => this.hide() )
         .then( () => Promise.resolve( this.emit( 'loggedIn' )) )
-        .catch( e => { this.Error(e); this.Toast.showError('Unknown server error') } )
+        .catch( e => { this.Error(e); this.Toast.showError( e || 'Unknown server error') } )
         .then( () => this.els.submit.classList.remove('submitting') )
     },
 
     onSubmitProgress( percent ) {
+        console.log('asd')
         console.log(percent)
     },
 
