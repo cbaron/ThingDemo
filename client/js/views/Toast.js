@@ -6,18 +6,18 @@ module.exports = Object.create( Object.assign( {}, require('./__proto__'), {
 
     insertion: { el: document.body },
 
+    name: 'Toast',
+
     postRender() {
-        console.log('asdasdad');
         return this
     },
 
     requiresLogin: false,
 
     showError( message ) {
-        console.log(this.els);
         this.els.message.textContent = message
         this.els.title.textContent = 'Error'
-        this.els.icon.appendChild( this.Icons.error )
+        this.slurpTemplate( { insertion: { el: this.els.icon }, template: this.Icons.error } )
 
         this.show()
         .then( () => this.hide() )

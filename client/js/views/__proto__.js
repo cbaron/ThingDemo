@@ -73,7 +73,7 @@ module.exports = Object.assign( { }, require('../../../lib/MyObject'), require('
         return new Promise( resolve => {
             if( !document.body.contains(this.els.container) || this.isHidden() ) return resolve()
             this.onHiddenProxy = e => this.onHidden(resolve)
-            this.els.container.addEventListener( 'transitionend', this.onHiddenProxy )
+            this.els.container.addEventListener( 'transitionend', e => console.log('ad') )
             this.els.container.classList.add('hide')
         } )
     },
@@ -92,6 +92,7 @@ module.exports = Object.assign( { }, require('../../../lib/MyObject'), require('
     isHidden() { return this.els.container.classList.contains('hidden') },
 
     onHidden( resolve ) {
+        console.log('onhidden');
         this.els.container.removeEventListener( 'transitionend', this.onHiddenProxy )
         this.els.container.classList.add('hidden')
         resolve( this.emit('hidden') )
@@ -146,7 +147,7 @@ module.exports = Object.assign( { }, require('../../../lib/MyObject'), require('
     show( duration ) {
         return new Promise( resolve => {
             this.onShownProxy = e => this.onShown(resolve)
-            this.els.container.addEventListener( 'transitionend', this.onShownProxy )
+            this.els.container.addEventListener( 'transitionend', this.onShownProxy, false )
             this.els.container.classList.remove( 'hide', 'hidden' )
         } )
     },

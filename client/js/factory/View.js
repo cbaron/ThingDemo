@@ -3,7 +3,6 @@ module.exports = Object.create( {
     create( name, opts ) {
         const lower = name
         name = name.charAt(0).toUpperCase() + name.slice(1)
-        console.log(this.Toast);
         return Object.create(
             this.Views[ name ],
             Object.assign( {

@@ -291,6 +291,33 @@
 .Sidebar ul li.selected svg {
   fill: #fff;
 }
+.Toast {
+  background-color: #b13325;
+  border-radius: 5px;
+  box-shadow: 0 0 12px #999;
+  color: #fff;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  opacity: 0.8;
+  position: fixed;
+  padding: 1rem;
+  right: 2rem;
+  top: 2rem;
+  transition: all 5s ease-in-out;
+}
+.Toast >div:first-child {
+  float: left;
+  padding: 0.5rem;
+}
+.Toast >div:first-child svg {
+  width: 2rem;
+}
+.Toast >div:nth-child(2) {
+  float: left;
+  padding: 0 0.5rem;
+}
+.Toast >div:nth-child(2) >div:first-child {
+  font-weight: bold;
+}
 .Widget {
   background-color: #fff;
   border-radius: 5px;
