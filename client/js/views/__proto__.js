@@ -70,12 +70,17 @@ module.exports = Object.assign( { }, require('../../../lib/MyObject'), require('
     },
 
     hide() {
-        return new Promise( resolve => {
-            if( !document.body.contains(this.els.container) || this.isHidden() ) return resolve()
-            this.onHiddenProxy = e => this.onHidden(resolve)
-            this.els.container.addEventListener( 'transitionend', this.onHiddenProxy )
-            this.els.container.classList.add('hide')
-        } )
+        if( !document.body.contains(this.els.container) || this.isHidden() ) {
+            return resolve()
+        } else if( this.els.container.classList.contains('hide') ) {
+            return new Promise( resolve => this.once( 'hidden', resolve ) )
+        } else {
+            return new Promise( resolve => {
+                this.onHiddenProxy = e => this.onHidden(resolve)
+                this.els.container.addEventListener( 'transitionend', this.onHiddenProxy )
+                this.els.container.classList.add('hide')
+            } )
+        }
     },
 
     htmlToFragment( str ) {
@@ -144,15 +149,30 @@ module.exports = Object.assign( { }, require('../../../lib/MyObject'), require('
     requiresLogin: true,
 
     show() {
-        this.els.container.classList.remove( 'hidden' )
-        
-        return new Promise( resolve => {
-            setTimeout( () => {
-                this.onShownProxy = e => this.onShown(resolve)
-                this.els.container.addEventListener( 'transitionend', this.onShownProxy )
-                this.els.container.classList.remove( 'hide' )
-            }, 10 ) 
-        } )
+        if( this.els.container.classList.contains( 'hidden' ) ) {
+            this.els.container.classList.remove( 'hidden' )
+            
+            return new Promise( resolve => {
+                setTimeout( () => {
+                    this.onShownProxy = e => this.onShown(resolve)
+                    this.els.container.addEventListener( 'transitionend', this.onShownProxy )
+                    this.els.container.classList.remove( 'hide' )
+                }, 10 ) 
+            } )
+        } else if( this.els.container.classList.contains( 'hide' ) ) {
+            this.els.container.classList.remove( 'hide' )
+            this.els.container.removeEventListener( 'transitionend', this.onHiddenProxy )
+            
+            return new Promise( resolve => {
+                setTimeout( () => {
+                    this.onShownProxy = e => this.onShown(resolve)
+                    this.els.container.addEventListener( 'transitionend', this.onShownProxy )
+                    this.els.container.classList.remove( 'hide' )
+                }, 10 ) 
+            } )
+        } else {
+            return new Promise( resolve => this.once( 'shown', resolve ) )
+        }
     },
 
     slurpEl( el ) {
