@@ -6,12 +6,16 @@ module.exports = Object.create( {
     
     Views: require('./.ViewMap'),
 
+    User: require('./models/User'),
+
     constructor() {
         this.contentContainer = document.querySelector('#content')
 
         window.onpopstate = this.handle.bind(this)
 
-        this.handle()
+        this.User.get()
+        .then( () => this.handle() )
+        .catch( this.Error )
 
         return this
     },
@@ -42,7 +46,6 @@ module.exports = Object.create( {
                     } )
             )
         } )
-        .catch( this.Error )
     },
 
     navigate( location ) {
