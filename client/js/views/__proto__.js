@@ -73,6 +73,9 @@ module.exports = Object.assign( { }, require('../../../lib/MyObject'), require('
         if( !document.body.contains(this.els.container) || this.isHidden() ) {
             return resolve()
         } else if( this.els.container.classList.contains('hide') ) {
+            if( this.els.container.classList.contains('hidden') ) {
+                console.log(this.name);
+            }
             return new Promise( resolve => this.once( 'hidden', resolve ) )
         } else {
             return new Promise( resolve => {

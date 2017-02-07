@@ -1,5 +1,5 @@
 module.exports = p => `` +
-`<div class="clearfix hide">
+`<div class="clearfix hide hidden">
     <div data-js="icon"></div>
     <div>
         <div data-js="title"></div>

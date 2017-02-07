@@ -14,6 +14,7 @@ module.exports = Object.create( Object.assign( {}, require('../../lib/MyObject')
                         ? reject( this.response )
                         : resolve( JSON.parse(this.response) )
                 }
+
                 if( data.method === "get" || data.method === "options" ) {
                     let qs = data.qs ? `?${data.qs}` : '' 
                     req.open( data.method, `/${data.resource}${qs}` )
@@ -24,6 +25,8 @@ module.exports = Object.create( Object.assign( {}, require('../../lib/MyObject')
                     this.setHeaders( req, data.headers )
                     req.send( data.data )
                 }
+
+                if( data.onProgress ) data.onProgress( 'sent' )
             } )
         },
 

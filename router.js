@@ -32,9 +32,11 @@ module.exports = Object.create( Object.assign( {}, require('./lib/MyObject'), {
                 : this.html( request, response )
         )
         .catch( e => {
-            this.Error(e)
-            response.writeHead( 500, { 'Content-Length': 0, 'Content-Type': 'text/plain' } )
-            response.end()
+            if( e.message !== "Handled" ) {
+                this.Error(e)
+                response.writeHead( 500, { 'Content-Length': 0, 'Content-Type': 'text/plain' } )
+                response.end()
+            }
         } )
     },
 
@@ -50,6 +52,7 @@ module.exports = Object.create( Object.assign( {}, require('./lib/MyObject'), {
     },
 
     resourceToFile: {
+        auth:             'auth',
         eventCounts:      'eventCounts',
         geo:              'geo',
         me:               'me',

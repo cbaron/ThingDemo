@@ -57,9 +57,30 @@ module.exports = Object.assign( { }, require('../lib/MyObject'), {
     },
 
     respond( data ) {
-        data.body = JSON.stringify( data.body || {} )
+        if( typeof data.body !== 'string' ) data.body = JSON.stringify( data.body || {} )
+
         this.response.writeHead( data.code || 200, Object.assign( this.getHeaders( data.body ), data.headers || {} ) )
         this.response.end( data.body )
-        if( data.stopChain ) { this.handled = true; throw new Error("Handled") }
-    }
+        if( data.stopChain ) { throw new Error("Handled") }
+    },
+
+    slurpBody() {
+        return new Promise( ( resolve, reject ) => {
+            var body = ''
+            
+            this.request.on( "data", data => {
+                body += data
+
+                if( body.length > 1e10 ) {
+                    response.request.connection.destroy()
+                    reject( new Error("Too many bits") )
+                }
+            } )
+
+            this.request.on( "end", () => {
+                try { resolve(this.body = JSON.parse( body )) }
+                catch( e ) { reject( 'Unable to parse request : ' + e ) }
+            } )
+        } )
+    },
 } )
