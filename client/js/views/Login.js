@@ -21,6 +21,8 @@ module.exports = Object.assign( {}, require('./__proto__'), {
         } )
         .then( () => this.user.get() )
         .then( () => {
+            if( !this.user.isLoggedIn() ) return Promise.reject('Unable to retrieve user')
+
             this.els.submit.classList.remove('submitting')
             
             return this.LoadingBar.end()

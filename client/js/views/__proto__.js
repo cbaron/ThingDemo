@@ -21,7 +21,7 @@ module.exports = Object.assign( { }, require('../../../lib/MyObject'), require('
 
     constructor() {
 
-        if( this.requiresLogin && (!this.user.data || !this.user.data.id ) ) return this.handleLogin()
+        if( this.requiresLogin && ( !this.user.isLoggedIn() ) ) return this.handleLogin()
 
         return this.initialize().render()
     },

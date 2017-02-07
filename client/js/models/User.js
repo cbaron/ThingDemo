@@ -1,1 +1,8 @@
-module.exports = Object.create( require('./__proto__.js'), { resource: { value: 'me' } } )
+module.exports = Object.create( Object.assign( {}, require('./__proto__.js'), {
+
+ isLoggedIn() {
+        return Boolean( this.data && this.data.id )  
+ }
+
+ 
+} ), { resource: { value: 'me' } } )
