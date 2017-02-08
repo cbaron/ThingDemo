@@ -13,6 +13,12 @@ module.exports = Object.create( {
 
         window.onpopstate = this.handle.bind(this)
 
+        this.User.on( 'logout', () =>
+            Promise.all( Object.keys( this.views ).map( view => this.views[ view ].delete() ) )
+            .then( () => this.handle() )
+            .catch( this.Error )
+        )
+
         this.User.get()
         .then( () => this.handle() )
         .catch( this.Error )

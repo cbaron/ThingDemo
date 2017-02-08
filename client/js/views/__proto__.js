@@ -31,7 +31,7 @@ module.exports = Object.assign( { }, require('../../../lib/MyObject'), require('
 
         if( type === "string" ) { this.bindEvent( key, this.events[key] ) }
         else if( Array.isArray( this.events[key] ) ) {
-            this.events[ key ].forEach( eventObj => this.bindEvent( key, eventObj.event ) )
+            this.events[ key ].forEach( event => this.bindEvent( key, event ) )
         } else {
             this.bindEvent( key, this.events[key].event )
         }

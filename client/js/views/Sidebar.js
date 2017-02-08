@@ -1,16 +1,27 @@
 module.exports = Object.assign( {}, require('./__proto__'), {
 
     events: {
-        list: 'click'
+        justify: 'click',
+        list: 'click',
+        search: [ 'focus', 'blur' ]
     },
 
     getTemplateOptions() { return this.data },
 
     data: [
         { icon: require('./templates/lib/home'), label: 'Overview', name: 'overview' },
-        { icon: require('./templates/lib/dollar'), label: 'API Revenue', name: 'api' },
-        { icon: require('./templates/lib/location'), label: 'Geo', name: 'geo' }
+        { icon: require('./templates/lib/dollar'), label: 'Revenue', name: 'api' },
+        { icon: require('./templates/lib/target'), label: 'Data API Admin', name: 'admin' },
+        { icon: require('./templates/lib/location'), label: 'Geo', name: 'geo' },
+        { icon: require('./templates/lib/grid'), label: 'Apps', name: 'apps' },
+        { icon: require('./templates/lib/link'), label: 'Relationships', name: 'relationships' },
+        { icon: require('./templates/lib/fullscreen'), label: 'Marketplace', name: 'marketplace' },
+        { icon: require('./templates/lib/pulse'), label: 'Activity', name: 'activity' }
     ],
+
+    onJustifyClick() {
+        this.els.container.classList.toggle('minimize')
+    },
 
     onListClick( e ) {
         const itemEl = e.target.tagName === "LI" ? e.target : e.target.closest('li'),
@@ -30,6 +41,14 @@ module.exports = Object.assign( {}, require('./__proto__'), {
 
         el.classList.add('selected')
         this.selectedEl = el
+    },
+
+    onSearchFocus() {
+        this.els.searchIcon.style.opacity = '1'
+    },
+    
+    onSearchBlur() {
+        this.els.searchIcon.style.opacity = ''
     },
 
     size() {

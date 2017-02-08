@@ -11,3 +11,13 @@ flex(n)
   -webkit-flex: n          /* Chrome */
   -ms-flex: n              /* IE 10 */
   flex: n  
+
+placeholder()
+    &::-webkit-input-placeholder
+        {block}
+    &:-moz-placeholder
+        {block}
+    &::-moz-placeholder
+        {block}
+    &:-ms-input-placeholder
+        {block}
