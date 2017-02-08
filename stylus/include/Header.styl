@@ -1,31 +1,56 @@
 .Header
-    background-color: #fff
-    padding: 2rem
-    
-    .heading
-        color: #333
-        float: left
-        font-weight: 300
-        font-size: 2rem
-        line-height: 2rem
-        letter-spacing: 1px
-        text-transform: uppercase
+    background-color: $darkBlue
+    color: white
+    font-size: .75rem
+    line-height: 1rem
+    height: 4rem
+    padding: 0rem 2rem
 
-    .dates
-        font-size: 0px
+    .accountUi
+        cursor: pointer
         float: right
+        padding: 1rem
+        text-align: center
 
-        input
-            border: 1px solid #c8c7cc
-            height: 2rem
-            padding-left: 12px
+        &:hover
+            background-color: $darkerBlue
 
-        span
-            background-color: #007AFF
-            color: #FFFFFF
-            display: inline-block
-            font-size: 1rem
-            height: 2rem
-            line-height: 2rem
-            padding: 0px .5rem 0px .5rem
-            vertical-align: bottom
+        svg
+            fill: none
+            height: .5rem
+            stroke: $lightBlue
+
+        .menu
+            background-color: #2B3034
+            border: 1px solid #1A1C1E
+            border-radius: 0
+            display: none
+            margin: 1rem 0rem
+            min-width: 6rem
+            position: absolute
+            right: 2rem
+            z-index: 1000
+            
+            div.showing &
+                background-color: $darkerBlue
+
+            li
+                border-bottom-color: #1A1C1E
+                color: #FFF
+                font-size: 12px
+                font-weight: 300
+                margin: 0
+                padding: 8px 8px 6px
+                border-bottom-width: 1px
+                border-bottom-style: solid
+                white-space: normal
+                display: block
+
+                &:hover
+                    background-color: #212326
+        
+        &.showing
+            background-color: $darkerBlue
+
+            .menu
+                display: block

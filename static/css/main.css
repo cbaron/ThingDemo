@@ -47,10 +47,67 @@
   opacity: 0.1;
 }
 .Header {
+  background-color: #253c4f;
+  color: #fff;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  height: 4rem;
+  padding: 0rem 2rem;
+}
+.Header .accountUi {
+  cursor: pointer;
+  float: right;
+  padding: 1rem;
+  text-align: center;
+}
+.Header .accountUi:hover {
+  background-color: #1c222a;
+}
+.Header .accountUi svg {
+  fill: none;
+  height: 0.5rem;
+  stroke: #5f8295;
+}
+.Header .accountUi .menu {
+  background-color: #2b3034;
+  border: 1px solid #1a1c1e;
+  border-radius: 0;
+  display: none;
+  margin: 1rem 0rem;
+  min-width: 6rem;
+  position: absolute;
+  right: 2rem;
+  z-index: 1000;
+}
+div.showing .Header .accountUi .menu {
+  background-color: #1c222a;
+}
+.Header .accountUi .menu li {
+  border-bottom-color: #1a1c1e;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 300;
+  margin: 0;
+  padding: 8px 8px 6px;
+  border-bottom-width: 1px;
+  border-bottom-style: solid;
+  white-space: normal;
+  display: block;
+}
+.Header .accountUi .menu li:hover {
+  background-color: #212326;
+}
+.Header .accountUi.showing {
+  background-color: #1c222a;
+}
+.Header .accountUi.showing .menu {
+  display: block;
+}
+.Heading {
   background-color: #fff;
   padding: 2rem;
 }
-.Header .heading {
+.Heading .heading {
   color: #333;
   float: left;
   font-weight: 300;
@@ -59,16 +116,16 @@
   letter-spacing: 1px;
   text-transform: uppercase;
 }
-.Header .dates {
+.Heading .dates {
   font-size: 0px;
   float: right;
 }
-.Header .dates input {
+.Heading .dates input {
   border: 1px solid #c8c7cc;
   height: 2rem;
   padding-left: 12px;
 }
-.Header .dates span {
+.Heading .dates span {
   background-color: #007aff;
   color: #fff;
   display: inline-block;
@@ -274,7 +331,9 @@
 }
 .Sidebar .header {
   background-color: #eee;
-  padding: 5px 15px;
+  display: flex;
+  height: 4rem;
+  padding: 0px 15px;
 }
 .Sidebar .header img {
   display: block;

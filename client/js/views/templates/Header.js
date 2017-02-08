@@ -1,9 +1,13 @@
 module.exports = p =>
 `<div class="clearfix">
-    <span class="heading">Overview</span>
-    <div class="dates">
-        <input type="text" data-js="from" value="${p.opts.from.format('YYYY-MM-DD')}" />
-        <span>to</span>
-        <input type="text" data-js="to" value="${p.opts.to.format('YYYY-MM-DD')}"/>
+    <div class="accountUi" data-js="accountUi">
+        <div data-js="email">${p.user.email}</div>
+        <div>
+            <svg version="1.1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="20" height="20" viewBox="0 0 20 20" xml:space="preserve">
+                <path d="M0,0L10,10L20,0" />
+            </svg>
     </div>
+    <ul class="menu" data-js="menu">
+        <li data-js="logout">Log Out</li>
+    </ul>
 </div>`

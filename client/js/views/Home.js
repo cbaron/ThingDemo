@@ -1,6 +1,6 @@
 module.exports = Object.assign( {}, require('./__proto__'), {
 
-    getHeight() { return window.innerHeight - this.views.header.els.container.clientHeight },
+    getHeight() { return window.innerHeight - this.views.heading.els.container.clientHeight },
     
     onNavigation( path ) {
         const name = path[0]
@@ -22,7 +22,7 @@ module.exports = Object.assign( {}, require('./__proto__'), {
                         Object.assign( {
                             insertion: { value: { el: this.els.content } },
                             height: { value: this.getHeight() },
-                            opts: { value: { dates: this.views.header.getDates() } }
+                            opts: { value: { dates: this.views.heading.getDates() } }
                         } )
                     )
              )
@@ -33,7 +33,7 @@ module.exports = Object.assign( {}, require('./__proto__'), {
     postRender() {
         this.currentView = undefined
 
-        this.views.header.on( 'dateChanged', ( el, e ) => {
+        this.views.heading.on( 'dateChanged', ( el, e ) => {
             this.views[ this.currentView ].onDateChange( el, e )
         } );
 

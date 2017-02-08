@@ -25,7 +25,7 @@ module.exports = Object.create( Object.assign( {}, require('./lib/MyObject'), {
 
         request.setEncoding('utf8');
 
-        ( path[0] === "static"
+        ( path[0] === "static" || /favicon/.test( path.join('') )
             ? this.static( request, response, path )
             : ( /application\/json/.test( request.headers.accept ) )
                 ? this.rest( request, response, path, qs )

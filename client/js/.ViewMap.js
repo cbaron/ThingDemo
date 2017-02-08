@@ -3,6 +3,7 @@ module.exports={
 	Events: require('./views/Events'),
 	Geo: require('./views/Geo'),
 	Header: require('./views/Header'),
+	Heading: require('./views/Heading'),
 	Home: require('./views/Home'),
 	LoadingBar: require('./views/LoadingBar'),
 	Login: require('./views/Login'),
