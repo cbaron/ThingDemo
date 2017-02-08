@@ -1,5 +1,4 @@
-module.exports = `<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-	 viewBox="0 0 286.054 286.054" style="enable-background:new 0 0 286.054 286.054;" xml:space="preserve">
+module.exports = `<svg version="1.1" class="grid" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="-30 -30 350 350" xml:space="preserve">
 <g>
 	<path d="M277.115,160.906h-107.27c-4.943,0-8.939,3.996-8.939,8.939v107.27c0,4.943,3.996,8.939,8.939,8.939
 		h107.27c4.943,0,8.939-3.996,8.939-8.939v-107.27C286.054,164.902,282.058,160.906,277.115,160.906z M277.115,0.001h-107.27

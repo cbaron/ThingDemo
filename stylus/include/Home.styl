@@ -3,6 +3,14 @@
     height: 100%
 
     .main
-        align-items: stretch
         background-color: #f7f7f8
+        displayFlex()
         flex(4)
+        flex-direction: column
+        height: 100%
+        overflow: hidden
+        position: relative
+
+        .scroll-wrap
+            margin-bottom: 3rem
+            overflow-y: scroll

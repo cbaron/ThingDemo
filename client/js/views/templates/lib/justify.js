@@ -1,5 +1,4 @@
-module.exports = `<svg version="1.1" data-js="justify" class="justify" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-	 viewBox="0 0 22.916 22.916" style="enable-background:new 0 0 22.916 22.916;" xml:space="preserve">
+module.exports = `<svg version="1.1" data-js="justify" class="justify" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="-2 -2 28 28" style="enable-background:new 0 0 22.916 22.916;" xml:space="preserve">
 <g>
 	<path d="M22.416,22.828H0.5c-0.276,0-0.5-0.224-0.5-0.5s0.224-0.5,0.5-0.5h21.916c0.276,0,0.5,0.224,0.5,0.5
 		S22.692,22.828,22.416,22.828z"/>

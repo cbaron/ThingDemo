@@ -1,6 +1,7 @@
 module.exports={
 	Api: require('./views/Api'),
 	Events: require('./views/Events'),
+	Footer: require('./views/Footer'),
 	Geo: require('./views/Geo'),
 	Header: require('./views/Header'),
 	Heading: require('./views/Heading'),
