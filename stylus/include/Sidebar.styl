@@ -19,11 +19,19 @@
             opacity: 0
             position: absolute
 
+        .header
+            svg
+                display: block
+                float: none
+                margin: 1rem auto
+
         svg
             margin: auto
 
             &.search
                 cursor: pointer
+                float: none
+                width: initial
 
     .header
         background-color: #eee
@@ -100,14 +108,14 @@
             background-color: #2C3541
             border-bottom: 1px #394557 solid
             cursor: pointer
-            display: flex
+            displayFlex()
             padding: 1rem .5rem
             transition: background-color .3s linear
             transition: width .3s ease-in-out
 
             svg
-                fill: rgba(255, 255, 255, 0.8)
-                float: left
+                display: block
+                stroke: rgba(255, 255, 255, 0.8)
                 height: 1.25rem
                 width: 1.25rem
                 margin: 0 .5rem
