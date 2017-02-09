@@ -123,14 +123,15 @@ div.showing .Header .accountUi .menu {
 }
 .Heading {
   background-color: #fff;
-  padding: 2rem;
+  padding: 1.5rem;
 }
 .Heading .heading {
   color: #333;
   float: left;
+  font-family: Raleway;
   font-weight: 300;
-  font-size: 2rem;
-  line-height: 2rem;
+  font-size: 1.75rem;
+  line-height: 1.75rem;
   letter-spacing: 1px;
   text-transform: uppercase;
 }
@@ -140,17 +141,21 @@ div.showing .Header .accountUi .menu {
 }
 .Heading .dates input {
   border: 1px solid #c8c7cc;
-  height: 2rem;
+  color: #5b5b60;
+  font-family: Raleway;
+  font-size: 0.95rem;
+  height: 1.75rem;
   padding-left: 12px;
+  width: 8rem;
 }
 .Heading .dates span {
   background-color: #007aff;
   color: #fff;
   display: inline-block;
   font-size: 1rem;
-  height: 2rem;
-  line-height: 2rem;
-  padding: 0px 0.5rem 0px 0.5rem;
+  height: 1.75rem;
+  line-height: 1.75rem;
+  padding: 0px 0.75rem;
   vertical-align: bottom;
 }
 .Home {
@@ -303,18 +308,25 @@ div.showing .Header .accountUi .menu {
 }
 .Overview .user-data-row .label {
   color: #253c4f;
+  font-size: 0.85rem;
+  font-weight: bold;
+  text-transform: uppercase;
 }
 .Overview .user-data-row .value {
   color: #e9e9e9;
+  font-family: Raleway;
+  font-weight: bold;
 }
 .Overview .graph-wrap {
   margin: 0 1rem 2rem 1rem;
 }
 .Overview .graph-wrap .heading {
   background-color: #e7e7e7;
-  color: #000;
-  font-size: 0.85rem;
-  padding: 0.5rem;
+  color: #666;
+  font-family: Raleway;
+  font-size: 1rem;
+  font-weight: bold;
+  padding: 0.5rem 1rem;
 }
 .Overview .widgets {
   display: -webkit-box !important /* OLD - iOS 6-, Safari 3.1-6 */;
@@ -578,11 +590,14 @@ div.showing .Header .accountUi .menu {
 }
 .Widget .value {
   color: #47669f;
+  font-family: Raleway;
+  font-weight: bold;
   text-align: center;
 }
 .Widget .label {
   color: #aeacb4;
   font-size: 0.75rem;
+  font-weight: bold;
 }
 @font-face {
   font-family: 'Roboto';
