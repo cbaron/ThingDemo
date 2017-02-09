@@ -24,5 +24,10 @@ module.exports = Object.assign( {}, require('./__proto__'), {
     templateOpts: {
         from: Moment('2017-01-01'),
         to: Moment()
+    },
+
+    update( obj ) {
+        this.els.text.textContent = obj.headingText
+        this.els.dateContainer.classList.toggle( 'hide', !obj.showDates )
     }
 } )

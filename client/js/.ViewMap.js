@@ -1,4 +1,5 @@
 module.exports={
+	Admin: require('./views/Admin'),
 	Api: require('./views/Api'),
 	Events: require('./views/Events'),
 	Footer: require('./views/Footer'),

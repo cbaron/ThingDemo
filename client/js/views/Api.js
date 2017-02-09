@@ -136,7 +136,7 @@ module.exports = Object.assign( {}, require('./__proto__'), {
         if (isNaN(d)) d = 0; return "$" + d3.format(",.2f")(d) + " Billion";
      },
 
-    initialize() {
+    initializeViz() {
         this.viz = vizuly.viz.weighted_tree( this.els.container )
 
         //Here we create three vizuly themes for each radial progress component.
@@ -223,7 +223,7 @@ module.exports = Object.assign( {}, require('./__proto__'), {
         
         this.data.values = this.prepData( csv )
         
-        this.initialize()
+        this.initializeViz()
 
         return;
 

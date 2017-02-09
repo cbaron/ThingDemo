@@ -134,6 +134,7 @@ div.showing .Header .accountUi .menu {
   line-height: 1.75rem;
   letter-spacing: 1px;
   text-transform: uppercase;
+  transition: all 1s ease-in-out;
 }
 .Heading .dates {
   font-size: 0px;

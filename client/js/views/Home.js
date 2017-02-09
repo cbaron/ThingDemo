@@ -1,5 +1,12 @@
 module.exports = Object.assign( {}, require('./__proto__'), {
 
+    data: {
+        overview: { headingText: 'Overview', showDates: true },
+        api: { headingText: 'Api', showDates: true },
+        admin: { headingText: 'Project Admin', showDates: false },
+        geo: { headingText: 'Geo', showDates: false }
+    },
+
     getHeight() { return window.innerHeight - this.views.heading.els.container.clientHeight },
     
     onNavigation( path ) {
@@ -12,10 +19,17 @@ module.exports = Object.assign( {}, require('./__proto__'), {
        
         promiseChain = ( this.currentView ? this.views[ this.currentView ].hide() : Promise.resolve() ).then( () => Promise.resolve( this.currentView = name ) )
 
-        if( this.views[ name ] ) return promiseChain.then( () => this.views[ name ].show() ).catch( this.Error )
+        if( this.views[ name ] ) {
+            return promiseChain.then( () => {
+                this.updateHeading( name )
+                return this.views[ name ].show()
+            } ).catch( this.Error )
+        }
 
-         promiseChain.then( () =>
-             Promise.resolve(
+
+         promiseChain.then( () => {
+             this.updateHeading( name )
+             return Promise.resolve(
                  this.views[ name ] =
                     this.factory.create(
                         name,
@@ -26,7 +40,7 @@ module.exports = Object.assign( {}, require('./__proto__'), {
                         } )
                     )
              )
-         )
+         } )
         .catch( e => { this.Error(e); this.emit( 'navigate', '/' ) } )
     },
 
@@ -48,6 +62,10 @@ module.exports = Object.assign( {}, require('./__proto__'), {
         if( this.views.api ) this.views.api.setHeight( this.getHeight() )
         if( this.views.geo ) this.views.geo.setHeight( this.getHeight() )
         return true
+    },
+
+    updateHeading( name ) {
+        this.views.heading.update( this.data[ name ] )
     }
 
 } )
