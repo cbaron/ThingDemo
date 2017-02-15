@@ -16,8 +16,6 @@ module.exports = Object.assign( {}, require('./__proto__'), {
 
     drawGraph() {
         
-        this.setTimeScale()
-        
         this.handleData()
         .then( () => {
        
@@ -44,6 +42,17 @@ module.exports = Object.assign( {}, require('./__proto__'), {
 
         this.clearGraph()
 
+        this.setTimeScale()
+
+        this.drawGraph()
+    },
+
+    onWidgetSelect( name ) {
+
+        this.dataType = name
+        
+        this.clearGraph()
+        
         this.drawGraph()
     },
 
@@ -51,11 +60,11 @@ module.exports = Object.assign( {}, require('./__proto__'), {
         const firstTick = this.Moment( this.timeTicks[0] )
         firstTick.subtract( this.Moment( this.timeTicks[1] ).diff( firstTick ), 'ms' )
 
-        return JSON.stringify( [ firstTick.toDate() ].concat( this.timeTicks ) )
+        return JSON.stringify( { dates: [ firstTick.toDate() ].concat( this.timeTicks ), data: this.dataType, role: this.user.data.role } )
     },
 
     handleData() {
-        return this.Xhr( { method: 'get', resource: 'eventCounts', qs: this.generateQs() } )
+        return this.Xhr( { method: 'get', resource: `timeSeries`, qs: this.generateQs() } )
         .then( data => {
             this.dataByNetwork = { }
 
@@ -88,7 +97,7 @@ module.exports = Object.assign( {}, require('./__proto__'), {
     postRender() {
         this.computeSizes()
 
-        this.drawGraph()
+        this.setTimeScale()
         
         return this
     },

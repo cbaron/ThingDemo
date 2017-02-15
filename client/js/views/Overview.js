@@ -19,13 +19,21 @@ module.exports = Object.assign( {}, require('./__proto__'), {
 
     },
 
+    onWidgetClick( name ) {
+        if( this.selectedWidget ) this.widgetViews[ this.selectedWidget ].els.container.classList.remove('selected')
+
+        this.widgetViews[ name ].els.container.classList.add('selected')
+        this.views.events.onWidgetSelect( name )
+        this.selectedWidget = name
+    },
+
     populate( data ) {
-        this.widgetViews.events.value( parseInt( data.totalEvents ).toLocaleString() )
-        this.widgetViews.nodes.value( parseInt( data.sensorNodes ).toLocaleString() )
-        this.widgetViews.activeNodes.value( parseInt( data.sensorsActive ).toLocaleString() )
-        this.widgetViews.openSpaces.value( parseInt( data.openSpaces ).toLocaleString() )
-        this.widgetViews.occupiedSpaces.value( parseInt( data.occupiedSpaces ).toLocaleString() )
-        this.widgetViews.revenue.value( this.NumberFormat.format( data.revenue  ) )
+        this.widgetViews.events.value( parseInt( data.events ).toLocaleString() )
+        this.widgetViews.nodes.value( parseInt( data.sensors ).toLocaleString() )
+        this.widgetViews.deployments.value( parseInt( data.deployments ).toLocaleString() )
+        this.widgetViews.activeNodes.value( parseInt( data.activeSensors ).toLocaleString() )
+        this.widgetViews.apps.value( parseInt( data.apps ).toLocaleString() )
+        this.widgetViews.revenue.value( this.NumberFormat.format( data.revenue ) )
     },
 
     postRender() {
@@ -33,10 +41,18 @@ module.exports = Object.assign( {}, require('./__proto__'), {
         this.widgetViews = {}
 
         this.widgets.forEach( widget =>
-            this.widgetViews[ widget.name ] = this.factory.create( 'widget', Object.assign( { model: { value: { data: widget } }, insertion: { value: { el: this.els.widgets } } } ) )
+            this.widgetViews[ widget.name ] =
+                this.factory.create( 'widget', Object.assign( { model: { value: { data: widget } }, insertion: { value: { el: this.els.widgets } } } ) )
+                .on( 'clicked', () => this.onWidgetClick( widget.name ) )
         )
 
         this.updateWidgets()
+        .then( () =>
+            Promise.resolve(
+                this.widgetViews[ this.widgets[0].name ].els.container.click()
+            )
+        )
+        .catch( this.Error )
 
         return this
     },
@@ -53,7 +69,7 @@ module.exports = Object.assign( {}, require('./__proto__'), {
     widgetsModel: Object.create( require('../models/Widgets'), { } ),
 
     updateWidgets() {
-        this.widgetsModel.get( { query: { dates: { to: this.opts.dates.to.toISOString(), from: this.opts.dates.from.toISOString() } } } )
+        return this.widgetsModel.get( { query: { dates: { to: this.opts.dates.to.toISOString(), from: this.opts.dates.from.toISOString() } } } )
         .then( data => {
             this.populate( data )
             
@@ -62,7 +78,6 @@ module.exports = Object.assign( {}, require('./__proto__'), {
                 this.populate( this.widgetsModel.data )
             } )
         } )
-        .catch( this.Error )
     }
 
 } )

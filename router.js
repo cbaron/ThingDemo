@@ -53,7 +53,7 @@ module.exports = Object.create( Object.assign( {}, require('./lib/MyObject'), {
 
     resourceToFile: {
         auth:             'auth',
-        eventCounts:      'eventCounts',
+        timeSeries:       'timeSeries',
         geo:              'geo',
         me:               'me',
         sensorsByNetwork: 'sensorsByNetwork',

@@ -6,20 +6,20 @@ function getRandomInt( min, max ) { return Math.floor(Math.random() * (max - min
 function getRandomFloat( min, max ) { return Math.random() * (max - min) + min }
 
 function insertDeployment( row ) {
-    return Postgres.query( `INSERT INTO deployment ( created ) VALUES ( '${row.created.toISOString()}' ) RETURNING id, created` )
+    return Postgres.query( `INSERT INTO deployment ( "networkId", created ) VALUES ( ${networkId}, '${row.created.toISOString()}' ) RETURNING id, created` )
     .then( result => insertSensors( result.rows[0].id, result.rows[0].created ) )
 }
 
 function insertSensors( deploymentId, created ) {
     const deploymentCenter = [ getRandomFloat( -180, 180 ), getRandomFloat( -90, 90 ) ],
-          sensorCount = getRandomInt( 100, 1000 ),
+          sensorCount = getRandomInt( 10, 100 ),
           locations = [ Stochastic.norm( deploymentCenter[0], 2, sensorCount ), Stochastic.norm( deploymentCenter[1], 2, sensorCount ) ]
 
     return Promise.all(
         Array.from( Array( sensorCount ).keys() ).map( i =>
             Postgres.query(
-                `INSERT INTO sensor ( location, "networkId", "isActive", "deploymentId", created ) ` +
-                `VALUES ( ST_MakePoint( ${locations[0][i]}, ${locations[1][i]} ), ${networkId}, ${ Boolean( getRandomInt( 1, 100 ) !== 100 ) }, ${ deploymentId }, '${ created.toISOString() }' )`
+                `INSERT INTO sensor ( location, "isActive", "deploymentId", created ) ` +
+                `VALUES ( ST_MakePoint( ${locations[0][i]}, ${locations[1][i]} ), ${ Boolean( getRandomInt( 1, 100 ) !== 100 ) }, ${ deploymentId }, '${ created.toISOString() }' )`
             )
         )
     )

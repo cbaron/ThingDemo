@@ -35,8 +35,8 @@
 .Events svg .x-axis {
   font-size: 0.5rem;
 }
-.Events svg .points .senet,
-.Events svg .lines .senet {
+.Events svg .points .vodafone,
+.Events svg .lines .vodafone {
   fill: #75ace2;
   stroke: #75ace2;
 }
@@ -45,7 +45,7 @@
   fill: #91c848;
   stroke: #91c848;
 }
-.Events svg .areas .senet {
+.Events svg .areas .vodafone {
   fill: #75ace2;
   opacity: 0.1;
 }
@@ -566,6 +566,9 @@ div.showing .Header .accountUi .menu {
   -webkit-flex: 1 /* Chrome */;
   -ms-flex: 1 /* IE 10 */;
   flex: 1;
+}
+.Widget.selected {
+  box-shadow: 0 0 4px 3px #91c848;
 }
 .Widget.activeNodes svg {
   transform: rotate(180deg);

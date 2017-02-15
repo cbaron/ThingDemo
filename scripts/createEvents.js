@@ -8,26 +8,32 @@ const Postgres = require('../dal/Postgres'),
       Moment = require('moment'),
       Stochastic = require('stochastic'),
       start = Moment.utc( process.argv[2] ),
-      end = Moment.utc( process.argv[3] )
-
+      end = Moment.utc( process.argv[3] ),
+      norms = Stochastic.norm( 360, 15, 100 )
+    
 Postgres.query( `SELECT * FROM sensor` )
 .then( result => {
-    let sensors = result.rows.map( row => Object.assign( row, { events: [ ], isDone: false } ) ),
-        done = false
-
+    let sensors = result.rows.map( row => Object.assign( row, { lastEvent: undefined, isDone: false } ) ),
+        done = false,
+        chain = Promise.resolve()
+        
     while( ! done ) {
+        done = true
         sensors.forEach( sensor => {
-            const lastEvent = sensor.events.length ? sensor.events[ sensor.events.length - 1 ] : start,
-                  currentEvent = Moment( lastEvent ).add( Stochastic.norm( 10, 3getRandomInt( 1, 480 ), 'm' )
-            sensor.events.push( Moment( lastEvent ).add( getRandomInt( 1, 480 ), 'm' ) )
-        count--
+            if( sensor.isDone ) return
+
+            const lastEvent = sensor.lastEvent || Moment( sensor.created ),
+                  currentEvent = Moment( lastEvent ).add( norms[ getRandomInt( 0, 99 ) ], 'm' )
+    
+            if( currentEvent.isBefore( end ) ) {
+                done = false
+                sensor.lastEvent = currentEvent
+                Postgres.query( `INSERT INTO event( "sensorId", data, created ) VALUES ( ${sensor.id}, '${ JSON.stringify( { isAvailable: true } ) }', '${currentEvent.toISOString()}' )` )
+                .catch( e => { console.log( e.stack || e ); process.exit(1) } )
+            } else { sensor.isDone = true }
+        } )
     }
 
-    return Promise.all( sensors.map( sensor =>
-        Promise.all( sensor.events.map( ( moment, i ) =>
-            Postgres.query( `INSERT INTO event( "sensorId", data, created ) VALUES ( ${sensor.id}, '${ JSON.stringify( { isAvailable: Boolean( i % 2 ) } ) }', '${moment.toISOString()}' )` )
-        ) )
-    ) )
+    return chain
 } )
-.catch( e => console.log( e.stack || e ) )
-.then( () => process.exit(0) )
+.catch( e => { console.log( e.stack || e ); process.exit(1) } )
