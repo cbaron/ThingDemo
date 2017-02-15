@@ -44,9 +44,9 @@ module.exports = Object.assign( {}, require('./__proto__'), {
     widgets: [
         { icon: require('./templates/lib/tag'), label: 'Events', name: 'events' },
         { icon: require('./templates/lib/wifi'), label: 'Sensor Nodes', name: 'nodes' },
+        { icon: require('./templates/lib/openBox'), label: 'Deployments', name: 'deployments' },
         { icon: require('./templates/lib/wifi'), label: 'Sensors Active', name: 'activeNodes' },
-        { icon: require('./templates/lib/openBox'), label: 'Open Spaces', name: 'openSpaces' },
-        { icon: require('./templates/lib/garage'), label: 'Occupied Spaces', name: 'occupiedSpaces' },
+        { icon: require('./templates/lib/grid'), label: 'Apps', name: 'apps' },
         { icon: require('./templates/lib/dollar'), label: 'Revenue', name: 'revenue'  }
     ],
 

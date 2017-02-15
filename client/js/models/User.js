@@ -9,6 +9,11 @@ module.exports = Object.create( Object.assign( {}, require('./__proto__.js'), {
 
      this.data = { }
      this.emit('logout')
- }
+ },
+
+ parse( response ) {
+     if( response.roles.length ) response.role = response.roles[0]
+     return response
+ },
  
 } ), { resource: { value: 'me' } } )

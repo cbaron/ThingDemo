@@ -5,11 +5,13 @@ module.exports = Object.assign( { }, require('./__proto__'), {
 
         return Promise.all( [
             this.Postgres.query( `SELECT COUNT( id ) FROM event WHERE created BETWEEN '${dates.from}' AND '${dates.to}'` ),
+            this.Postgres.query( `SELECT COUNT( id ) FROM deployment WHERE created BETWEEN '${dates.from}' AND '${dates.to}'` ),
             this.Postgres.query( `SELECT "sensorId", MIN( created ) as created FROM event WHERE created < '${dates.to}' GROUP BY "sensorId"` ),
             this.Postgres.query( `SELECT e.data FROM event e JOIN ( SELECT "sensorId", MAX( created ) as created FROM event GROUP BY "sensorId" ) e2 ON e."sensorId" = e2."sensorId" AND e.created = e2.created` )
         ] )
-        .then( ( [ total, bySensor, current ] ) => {
+        .then( ( [ total, deployments,  bySensor, current ] ) => {
             const totalEvents = total.rows[0].count,
+                  totalDeployments = deployments.rows[0].count,
                   totalSensors = bySensor.rows.length,
                   currentData = this.parseData( current.rows )
 

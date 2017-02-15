@@ -10,7 +10,6 @@ module.exports={
 	LoadingBar: require('./views/templates/LoadingBar'),
 	Login: require('./views/templates/Login'),
 	Overview: require('./views/templates/Overview'),
-	SensorsByNetwork: require('./views/templates/SensorsByNetwork'),
 	Sidebar: require('./views/templates/Sidebar'),
 	Toast: require('./views/templates/Toast'),
 	Widget: require('./views/templates/Widget')

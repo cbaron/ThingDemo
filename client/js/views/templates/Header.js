@@ -1,5 +1,8 @@
-module.exports = p =>
+module.exports = p => {
+    const partner = p.user.role ? p.user.role.label : ''
+    return `` +
 `<div class="clearfix">
+    <div class="partner" data-js="partner">${partner}</div>
     <div class="accountUi" data-js="accountUi">
         <div data-js="email">${p.user.email}</div>
         <div>
@@ -11,3 +14,4 @@ module.exports = p =>
         <li data-js="logout">Log Out</li>
     </ul>
 </div>`
+}

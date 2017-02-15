@@ -6,18 +6,20 @@ function getRandomInt( min, max ) { return Math.floor(Math.random() * (max - min
 
 const Postgres = require('../dal/Postgres'),
       Moment = require('moment'),
-      start = Moment.utc( process.argv[3] )
-
-let count = process.argv[2]
+      Stochastic = require('stochastic'),
+      start = Moment.utc( process.argv[2] ),
+      end = Moment.utc( process.argv[3] )
 
 Postgres.query( `SELECT * FROM sensor` )
 .then( result => {
-    let sensors = result.rows.map( row => Object.assign( row, { events: [ ] } ) )
+    let sensors = result.rows.map( row => Object.assign( row, { events: [ ], isDone: false } ) ),
+        done = false
 
-    while( count > 0 ) {
-        let sensor = sensors[ Math.floor( Math.random() * sensors.length ) ]
-        const lastEvent = sensor.events.length ? sensor.events[ sensor.events.length - 1 ] : start
-        sensor.events.push( Moment( lastEvent ).add( getRandomInt( 1, 480 ), 'm' ) )
+    while( ! done ) {
+        sensors.forEach( sensor => {
+            const lastEvent = sensor.events.length ? sensor.events[ sensor.events.length - 1 ] : start,
+                  currentEvent = Moment( lastEvent ).add( Stochastic.norm( 10, 3getRandomInt( 1, 480 ), 'm' )
+            sensor.events.push( Moment( lastEvent ).add( getRandomInt( 1, 480 ), 'm' ) )
         count--
     }
 

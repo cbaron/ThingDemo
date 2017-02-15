@@ -8,8 +8,15 @@
 .Events {
   background-color: #fff;
   border-right: 15px solid #f7f7f8;
-  float: left;
-  width: 75%;
+  margin: 0 1rem 2rem 1rem;
+}
+.Events .heading {
+  background-color: #e7e7e7;
+  color: #666;
+  font-family: Raleway;
+  font-size: 1rem;
+  font-weight: bold;
+  padding: 0.5rem 1rem;
 }
 .Events > div:nth-child(2) {
   height: 215px;
@@ -71,6 +78,13 @@
   line-height: 1rem;
   height: 4rem;
   padding: 0rem 2rem;
+}
+.Header .partner {
+  float: left;
+  font-family: Raleway;
+  font-size: 1.5rem;
+  line-height: 2rem;
+  padding: 1rem 0rem;
 }
 .Header .accountUi {
   cursor: pointer;
@@ -335,32 +349,6 @@ div.showing .Header .accountUi .menu {
   display: -ms-flexbox !important /* TWEENER - IE 10 */;
   display: -webkit-flex !important /* NEW - Chrome */;
   display: flex !important;
-}
-.SensorsByNetwork {
-  background-color: #fff;
-  border-left: 15px solid #f7f7f8;
-  float: left;
-  width: 25%;
-}
-.SensorsByNetwork > div:nth-child(2) {
-  height: 215px;
-  text-align: center;
-}
-.SensorsByNetwork > div:nth-child(2) svg {
-  height: 100%;
-  width: 100%;
-}
-.SensorsByNetwork > div:nth-child(2) svg text {
-  fill: #000;
-  font-size: 0.75rem;
-}
-.SensorsByNetwork > div:nth-child(2) svg .senet {
-  fill: #75ace2;
-  stroke: #fff;
-}
-.SensorsByNetwork > div:nth-child(2) svg .machineq {
-  fill: #91c848;
-  stroke: #fff;
 }
 .Sidebar {
   background-color: #364150;

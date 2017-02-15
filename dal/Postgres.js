@@ -92,7 +92,7 @@ module.exports = Object.create( Object.assign( {}, require('../lib/MyObject').pr
                         this.client.query( query, args, ( err, result ) => {
                             this.done()
 
-                            if( err ) return reject( err )
+                            if( err ) { console.log( query ); return reject( err ) }
 
                             resolve( result )
                         } )
