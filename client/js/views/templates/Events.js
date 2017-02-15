@@ -1,6 +1,6 @@
 module.exports = p => 
 `<div>
-    <div class="heading">Events over time</div>
+    <div class="heading" data-js="heading"></div>
     <div>
         <svg data-js="graph" version="1.1" xmlns="http://www.w3.org/2000/svg">
             <g data-js="scale">

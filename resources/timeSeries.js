@@ -19,8 +19,10 @@ module.exports = Object.assign( { }, require('./__proto__'), {
         const moreJoin = ( this.query.role && this.query.role.role === 'network' ) ? `AND n.id = ${this.query.role.id} ` : ``
         return `` +
             `SELECT n.name, n.label, COUNT(e.id) as "count", ${i} as "index" ` +
-            `FROM event e JOIN sensor s ON s.id = e."sensorId" ` +
-            `JOIN network n ON n.id = s."networkId" ${moreJoin} ` +
+            `FROM event e ` +
+            `JOIN sensor s ON s.id = e."sensorId" ` +
+            `JOIN deployment d ON d.id = s."deploymentId" ` +
+            `JOIN network n ON n.id = d."networkId" ${moreJoin} ` +
             `WHERE e.created BETWEEN '${date}' AND '${this.query.dates[i+1]}' ` +
             `GROUP BY n.name, n.label`
     },
@@ -58,13 +60,13 @@ module.exports = Object.assign( { }, require('./__proto__'), {
     },
 
     apps( date, i ) {
-        const moreJoin = ( this.query.role && this.query.role.role === 'network' ) ? `AND n.id = ${this.query.role.id} ` : ``
+        const moreJoin = ( this.query.role && this.query.role.role === 'network' ) ? `AND n.id = ${this.query.role.id} ` : ``;
         return `` +
             `SELECT n.name, n.label, COUNT(a.id) as "count", ${i} as "index" ` +
             `FROM app a ` +
             `JOIN deployment d ON a."deploymentId" = d.id ` +
             `JOIN network n ON n.id = d."networkId" ${moreJoin} ` +
-            `WHERE a.created BETWEEN '${date}' AND '${this.query.dates[i+1]}' `
+            `WHERE a.created BETWEEN '${date}' AND '${this.query.dates[i+1]}' ` +
             `GROUP BY n.name, n.label`
     },
 

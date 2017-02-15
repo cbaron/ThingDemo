@@ -1,5 +1,14 @@
 module.exports = Object.assign( {}, require('./__proto__'), {
 
+    Headings: {
+        events: 'Events over Time',
+        nodes: 'Sensors over Time',
+        deployments: 'Deployments over Time',
+        activeNodes: 'Active Sensors over Time',
+        apps: 'Apps over Time',
+        revenue: 'Revenue over Time'
+    },
+
     Moment: require('moment'),
 
     clearGraph() {
@@ -50,6 +59,8 @@ module.exports = Object.assign( {}, require('./__proto__'), {
     onWidgetSelect( name ) {
 
         this.dataType = name
+
+        this.els.heading.textContent = this.Headings[ name ]
         
         this.clearGraph()
         

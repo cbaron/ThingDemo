@@ -6,7 +6,7 @@ function getRandomInt( min, max ) { return Math.floor(Math.random() * (max - min
 function getRandomFloat( min, max ) { return Math.random() * (max - min) + min }
 
 function insertApp( row ) {
-    return Postgres.query( `INSERT INTO app ( created ) VALUES ( '${row.created.toISOString()}' )` )
+    return Postgres.query( `INSERT INTO app ( "deploymentId", created ) VALUES ( ${ row.deploymentId }, '${row.created.toISOString()}' )` )
 }
 
 function insertSensors( deploymentId, created ) {
@@ -46,7 +46,10 @@ while( end.isAfter( current ) ) {
 
             return Promise.all(
                 Array.from( Array( appCount ).keys() ).map( () =>
-                    insertApp( { created: new Date( scopeDate + ( getRandomInt( 0, 23 ) * getRandomInt( 0, 60 ) * getRandomInt( 0, 60 ) * 1000 ) ) } )
+                    insertApp( {
+                        deploymentId: deploymentIds[ getRandomInt( 0, deploymentIds.length -1 ) ],
+                        created: new Date( scopeDate + ( getRandomInt( 0, 23 ) * getRandomInt( 0, 60 ) * getRandomInt( 0, 60 ) * 1000 ) )
+                    } )
                 )
             )
         } )
