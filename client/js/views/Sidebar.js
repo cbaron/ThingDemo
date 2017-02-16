@@ -8,7 +8,7 @@ module.exports = Object.assign( {}, require('./__proto__'), {
 
     getTemplateOptions() {
         const role = this.user.data.role ? this.user.data.role.role : ''
-        return this.data.filter( datum => datum.roles[ this.user.data.role.role ] )
+        return this.data.filter( datum => datum.roles[ role ] )
     },
 
     data: [
