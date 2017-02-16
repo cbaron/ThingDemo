@@ -1,4 +1,5 @@
 module.exports={
+	Activity: require('./views/templates/Activity'),
 	Admin: require('./views/templates/Admin'),
 	Api: require('./views/templates/Api'),
 	Events: require('./views/templates/Events'),
@@ -9,6 +10,7 @@ module.exports={
 	Home: require('./views/templates/Home'),
 	LoadingBar: require('./views/templates/LoadingBar'),
 	Login: require('./views/templates/Login'),
+	Marketplace: require('./views/templates/Marketplace'),
 	Overview: require('./views/templates/Overview'),
 	Sidebar: require('./views/templates/Sidebar'),
 	Toast: require('./views/templates/Toast'),

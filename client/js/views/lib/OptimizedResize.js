@@ -12,7 +12,7 @@ module.exports = Object.create( {
         
         window.requestAnimationFrame
             ? window.requestAnimationFrame( this.runCallbacks.bind(this) )
-            : setTimeout( this.runCallbacks, 66)
+            : setTimeout( this.runCallbacks, 66 )
     },
 
     runCallbacks() {

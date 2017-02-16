@@ -87,11 +87,24 @@ module.exports = Object.assign( {}, require('./__proto__'), {
                     if( count < this.valueRange[0] ) this.valueRange[ 0 ] = count
                     if( count > this.valueRange[1] ) this.valueRange[ 1 ] = count
 
-                    if( !this.dataByNetwork[ aggregate.name ] ) this.dataByNetwork[ aggregate.name ] = { data: [ ], label: aggregate.label }
+                    if( !this.dataByNetwork[ aggregate.name ] ) this.dataByNetwork[ aggregate.name ] = { data: [ ], label: aggregate.label, indexes: { } }
                     this.dataByNetwork[ aggregate.name ].data.push( [ this.timeScale( this.timeTicks[ aggregate.index ] ), count ] )
+                    this.dataByNetwork[ aggregate.name ].indexes[ aggregate.index ] = true
                 } )
             )
         } )
+        .then( () =>
+            Promise.resolve(
+                Object.keys( this.dataByNetwork ).forEach( network =>
+                    this.timeTicks.forEach( ( tick, i ) => {
+                        if( ! this.dataByNetwork[ network ].indexes[ i ] ) {
+                            this.dataByNetwork[ network ].data.splice( i, 0, [ this.timeScale( this.timeTicks[ i ] ), 0 ] )
+                            this.valueRange[0] = 0
+                        }
+                    } )
+                )
+            )
+        )
     },
 
     handlePotentialXScaling() {
@@ -169,7 +182,7 @@ module.exports = Object.assign( {}, require('./__proto__'), {
         this.d3.selectAll( '.y-axis text' )
         .attr( 'transform', `translate( ${this.boundingWidth - 60}, 0 )` )
        
-        this.xTranslation = this.timeScale( this.timeTicks[1] ) / 2
+        this.xTranslation = ( this.timeScale( this.timeTicks[1] ) - this.timeScale( this.timeTicks[0] ) ) / 2 
 
         const xAxisPath = this.d3.select('.x-axis .domain')
         xAxisPath.attr( 'd', `${xAxisPath.attr( 'd' ).slice( 0, -2 )}M${this.timeScale( this.timeTicks[ this.timeTicks.length - 1 ] )},0.5h${this.xTranslation*2}V6` )
@@ -254,7 +267,10 @@ module.exports = Object.assign( {}, require('./__proto__'), {
             .domain( [ this.opts.dates.from.toDate(), this.opts.dates.to.toDate() ] )
             .range( [ 0, this.boundingWidth - 100 ] )
       
-        this.timeTicks = this.timeScale.ticks(7)
+        //this.timeTicks = this.timeScale.ticks(7)
+        this.timeTicks = this.timeScale.ticks()
+
+        this.timeScale.domain( [ this.timeTicks[0], this.timeTicks[ this.timeTicks.length - 1 ] ] )
     },
 
     scaleGraph( opts={} ) {

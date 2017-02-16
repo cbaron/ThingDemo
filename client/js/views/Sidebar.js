@@ -6,17 +6,17 @@ module.exports = Object.assign( {}, require('./__proto__'), {
         search: [ 'focus', 'blur' ]
     },
 
-    getTemplateOptions() { return this.data },
+    getTemplateOptions() { return this.data.filter( datum => datum.roles[ this.user.data.role.role ] ) },
 
     data: [
-        { icon: require('./templates/lib/home'), label: 'Overview', name: 'overview' },
-        { icon: require('./templates/lib/dollar'), label: 'Revenue', name: 'api' },
-        { icon: require('./templates/lib/target'), label: 'Data API Admin', name: 'admin' },
-        { icon: require('./templates/lib/location'), label: 'Geo', name: 'geo' },
-        { icon: require('./templates/lib/grid'), label: 'Apps', name: 'apps' },
-        { icon: require('./templates/lib/link'), label: 'Relationships', name: 'relationships' },
-        { icon: require('./templates/lib/fullscreen'), label: 'Marketplace', name: 'marketplace' },
-        { icon: require('./templates/lib/pulse'), label: 'Activity', name: 'activity' }
+        { icon: require('./templates/lib/home'), label: 'Overview', name: 'overview', roles: { network: true } },
+        { icon: require('./templates/lib/dollar'), label: 'Revenue', name: 'api', roles: { network: true } },
+        { icon: require('./templates/lib/target'), label: 'Data API Admin', name: 'admin', roles: { } },
+        { icon: require('./templates/lib/location'), label: 'Geo', name: 'geo', roles: { network: true } },
+        { icon: require('./templates/lib/grid'), label: 'Apps', name: 'apps', roles: { } },
+        { icon: require('./templates/lib/link'), label: 'Relationships', name: 'relationships', roles: { } },
+        { icon: require('./templates/lib/pulse'), label: 'Activity', name: 'activity', roles: { network: true } },
+        { icon: require('./templates/lib/fullscreen'), label: 'Marketplace', name: 'marketplace', roles: { network: true } }
     ],
 
     onJustifyClick() {

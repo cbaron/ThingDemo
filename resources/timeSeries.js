@@ -18,7 +18,7 @@ module.exports = Object.assign( { }, require('./__proto__'), {
     events( date, i ) {
         const moreJoin = ( this.query.role && this.query.role.role === 'network' ) ? `AND n.id = ${this.query.role.id} ` : ``
         return `` +
-            `SELECT n.name, n.label, COUNT(e.id) as "count", ${i} as "index" ` +
+            `SELECT n.name, n.label, COALESCE( COUNT(e.id), 0 ) as "count", ${i} as "index" ` +
             `FROM event e ` +
             `JOIN sensor s ON s.id = e."sensorId" ` +
             `JOIN deployment d ON d.id = s."deploymentId" ` +
