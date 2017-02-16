@@ -14,8 +14,7 @@ const Postgres = require('../dal/Postgres'),
 Postgres.query( `SELECT * FROM sensor` )
 .then( result => {
     let sensors = result.rows.map( row => Object.assign( row, { lastEvent: undefined, isDone: false } ) ),
-        done = false,
-        chain = Promise.resolve()
+        done = false
         
     while( ! done ) {
         done = true
@@ -33,7 +32,5 @@ Postgres.query( `SELECT * FROM sensor` )
             } else { sensor.isDone = true }
         } )
     }
-
-    return chain
 } )
 .catch( e => { console.log( e.stack || e ); process.exit(1) } )

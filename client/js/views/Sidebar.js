@@ -6,7 +6,10 @@ module.exports = Object.assign( {}, require('./__proto__'), {
         search: [ 'focus', 'blur' ]
     },
 
-    getTemplateOptions() { return this.data.filter( datum => datum.roles[ this.user.data.role.role ] ) },
+    getTemplateOptions() {
+        const role = this.user.data.role ? this.user.data.role.role : ''
+        return this.data.filter( datum => datum.roles[ this.user.data.role.role ] )
+    },
 
     data: [
         { icon: require('./templates/lib/home'), label: 'Overview', name: 'overview', roles: { network: true } },
