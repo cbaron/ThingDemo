@@ -1,7 +1,6 @@
 module.exports={
 	Activity: require('./views/templates/Activity'),
 	Admin: require('./views/templates/Admin'),
-	Api: require('./views/templates/Api'),
 	Events: require('./views/templates/Events'),
 	Footer: require('./views/templates/Footer'),
 	Geo: require('./views/templates/Geo'),
@@ -12,6 +11,7 @@ module.exports={
 	Login: require('./views/templates/Login'),
 	Marketplace: require('./views/templates/Marketplace'),
 	Overview: require('./views/templates/Overview'),
+	Revenue: require('./views/templates/Revenue'),
 	Sidebar: require('./views/templates/Sidebar'),
 	Toast: require('./views/templates/Toast'),
 	Widget: require('./views/templates/Widget')

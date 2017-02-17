@@ -14,7 +14,7 @@ module.exports = Object.assign( {}, require('./__proto__'), {
 
     data: {
         overview: { headingText: 'Overview', showDates: true },
-        api: { headingText: 'Api', showDates: true },
+        revenue: { headingText: 'Revenue', showDates: true },
         admin: { headingText: 'Project Admin', showDates: false },
         geo: { headingText: 'Geo', showDates: false },
         activity: { headingText: 'Activity', showDates: false },
@@ -41,7 +41,7 @@ module.exports = Object.assign( {}, require('./__proto__'), {
             this.currentView = name
             return Promise.resolve( this.updateHeading( name ) )
         } )
-        .catch( e => { this.Error(e); this.emit( 'navigate', '/' ) } )
+        .catch( e => this.Error(e) )
     },
 
     postRender() {

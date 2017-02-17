@@ -109,7 +109,8 @@ module.exports = Object.assign( { }, require('../../../lib/MyObject'), require('
     onShown( resolve ) {
         this.els.container.removeEventListener( 'transitionend', this.onShownProxy )
         if( this.size ) this.size()
-        resolve( this.emit('shown') )
+        this.emit('shown')
+        resolve( this.showing = false )
     },
 
     showNoAccess() {
@@ -155,28 +156,28 @@ module.exports = Object.assign( { }, require('../../../lib/MyObject'), require('
     },
 
     show() {
-        if( this.els.container.classList.contains( 'hidden' ) ) {
-            this.els.container.classList.remove( 'hidden' )
-           
-            return new Promise( resolve =>
-                window.requestAnimationFrame
-                    ? window.requestAnimationFrame( () => this.setupShow( resolve ) )
-                    : setTimeout( () => this.setupShow( resolve ), 66 )
-            )
-        } else if( this.els.container.classList.contains( 'hide' ) ) {
-            this.els.container.classList.remove( 'hide' )
-            this.els.container.removeEventListener( 'transitionend', this.onHiddenProxy )
-            
-            return new Promise( resolve => {
-                setTimeout( () => {
-                    this.onShownProxy = e => this.onShown(resolve)
-                    this.els.container.addEventListener( 'transitionend', this.onShownProxy )
-                    this.els.container.classList.remove( 'hide' )
-                }, 10 ) 
-            } )
-        } else {
-            return new Promise( resolve => this.once( 'shown', resolve ) )
-        }
+        if( this.showing ) return new Promise( resolve => this.once( 'shown', resolve ) )
+
+        const classList = this.els.container.classList,
+              isHidden = classList.contains('hidden'),
+              isHiding = classList.contains('hide')
+
+        const resolution = ( !isHidden && !isHiding )
+            ? resolve => resolve()
+            : isHidden
+                ? resolve =>
+                    window.requestAnimationFrame( () => {
+                        this.els.container.classList.remove( 'hidden' )
+                        window.requestAnimationFrame( () => this.setupShow( resolve ) )
+                    } )
+                : isHiding
+                    ? resolve => {
+                        this.els.container.removeEventListener( 'transitionend', this.onHiddenProxy )
+                        window.requestAnimationFrame( () => this.setupShow( resolve ) )
+                    }
+                    : resolve => resolve()
+
+        return new Promise( resolution )
     },
 
     slurpEl( el ) {

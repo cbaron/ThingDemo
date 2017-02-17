@@ -13,7 +13,7 @@ module.exports = Object.assign( {}, require('./__proto__'), {
 
     data: [
         { icon: require('./templates/lib/home'), label: 'Overview', name: 'overview', roles: { network: true } },
-        { icon: require('./templates/lib/dollar'), label: 'Revenue', name: 'api', roles: { network: true } },
+        { icon: require('./templates/lib/dollar'), label: 'Revenue', name: 'revenue', roles: { network: true } },
         { icon: require('./templates/lib/target'), label: 'Data API Admin', name: 'admin', roles: { } },
         { icon: require('./templates/lib/location'), label: 'Geo', name: 'geo', roles: { network: true } },
         { icon: require('./templates/lib/grid'), label: 'Apps', name: 'apps', roles: { } },

@@ -25,7 +25,7 @@ module.exports = Object.assign( {}, require('./__proto__'), {
 
     d3: Object.assign( require('d3-selection'), require('d3-scale'), require('d3-shape') ),
 
-    model: {
+    modelTwo: {
         name: 'totalRevenue',
         label: 'China Unicom IoT Data Revenue',
         children: [
@@ -276,6 +276,19 @@ module.exports = Object.assign( {}, require('./__proto__'), {
             };
     },
 
+    onDateChange( el, e ) {
+        this.opts.dates[ el ] = this.Moment( e )
+
+        if( this.opts.dates.to.isBefore( this.opts.dates.from ) ) return
+
+        return
+        this.clearGraph()
+
+        this.setTimeScale()
+
+        this.drawGraph()
+    },
+
     onMeasure() {
        // Allows you to manually override vertical spacing
        //this.viz.tree().nodeSize([100,0]);
@@ -298,68 +311,76 @@ module.exports = Object.assign( {}, require('./__proto__'), {
     },
 
     postRender() {
+
+        this.model = Object.create( this.Model, { resource: { value: 'revenue' } } )
+
         this.setHeight( this.height )
-        
-        this.model.revenue = this.model.children.reduce( ( memo, val ) => memo + val, 0 )
-            
-        this.assignPoints()
 
-        this.colorScale =
-            this.d3.scaleLinear()
-                .domain( [ 0, this.model.children.length - 1 ] )
-                //.range( ["#1ddfc7", "#25e6b9" ] )
-                .range( ["#81b441", "#25e6b9" ] )
-             
-        this.line =
-            this.d3.line()
-            .curve( this.d3.curveBundle )
+        this.model.get( { query: this.opts.dates, role: this.user.data.role  } )
+        .then( () => {
+            console.log( this.model.data );
 
-        this.model.children.forEach( ( child, i ) => {
-            this.d3.select( this.els.lines )
-            .append( 'path' )
-                .attr( 'd', this.line( [ [ this.model.x, this.model.y ], [ this.model.x + 100, child.y ], [ child.x, child.y ] ] ) )
-                .style( 'stroke', this.colorScale(i) )
-        } )
+            this.model.revenue = this.model.children.reduce( ( memo, val ) => memo + val, 0 )
+                
+            this.assignPoints()
 
-        this.d3.select( this.els.points )
-            .append( 'circle' )
-            .attr( 'cx', this.model.x )
-            .attr( 'cy', this.model.y )
-            .attr( 'r', this.rootRadius )
-            .style( 'stroke', this.colorScale(0) )
-            .style( 'fill', this.colorScale(this.model.children.length - 1) )
+            this.colorScale =
+                this.d3.scaleLinear()
+                    .domain( [ 0, this.model.children.length - 1 ] )
+                    //.range( ["#1ddfc7", "#25e6b9" ] )
+                    .range( ["#81b441", "#25e6b9" ] )
+                 
+            this.line =
+                this.d3.line()
+                .curve( this.d3.curveBundle )
 
-        this.model.children.forEach( ( child, i ) => {
+            this.model.children.forEach( ( child, i ) => {
+                this.d3.select( this.els.lines )
+                .append( 'path' )
+                    .attr( 'd', this.line( [ [ this.model.x, this.model.y ], [ this.model.x + 100, child.y ], [ child.x, child.y ] ] ) )
+                    .style( 'stroke', this.colorScale(i) )
+            } )
+
             this.d3.select( this.els.points )
-            .append( 'circle' )
-                .attr( 'cx', child.x )
-                .attr( 'cy', child.y )
-                .attr( 'cy', child.y )
-                .style( 'fill', this.colorScale(i) )
-                .style( 'stroke', this.colorScale.invert(i) )
+                .append( 'circle' )
+                .attr( 'cx', this.model.x )
+                .attr( 'cy', this.model.y )
+                .attr( 'r', this.rootRadius )
+                .style( 'stroke', this.colorScale(0) )
+                .style( 'fill', this.colorScale(this.model.children.length - 1) )
+
+            this.model.children.forEach( ( child, i ) => {
+                this.d3.select( this.els.points )
+                .append( 'circle' )
+                    .attr( 'cx', child.x )
+                    .attr( 'cy', child.y )
+                    .attr( 'cy', child.y )
+                    .style( 'fill', this.colorScale(i) )
+                    .style( 'stroke', this.colorScale.invert(i) )
+            } )
         } )
 
         return this;
-        // html element that holds the chart
-        this.viz_container = undefined
+            // html element that holds the chart
+            this.viz_container = undefined
 
-        // our weighted tree
-        this.viz = undefined
+            // our weighted tree
+            this.viz = undefined
 
-        // our theme
-        this.theme = undefined
+            // our theme
+            this.theme = undefined
 
-        // nested data
-        this.data = {}
+            // nested data
+            this.data = {}
 
-        // stores the currently selected value field
-        this.valueField = "revenue";
-        this.valueFields = ["revenue"];
+            // stores the currently selected value field
+            this.valueField = "revenue";
+            this.valueFields = ["revenue"];
 
-        // Set the size of our container element.
-        this.viz_container = d3.selectAll("#viz")
+            // Set the size of our container element.
+            this.viz_container = d3.selectAll("#viz")
 
-        this.loadData();
+            this.loadData();
 
         return this
     },

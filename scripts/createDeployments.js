@@ -6,7 +6,7 @@ function getRandomInt( min, max ) { return Math.floor(Math.random() * (max - min
 function getRandomFloat( min, max ) { return Math.random() * (max - min) + min }
 
 function insertDeployment( row ) {
-    return Postgres.query( `INSERT INTO deployment ( "networkId", created ) VALUES ( ${networkId}, '${row.created.toISOString()}' ) RETURNING id, created` )
+    return Postgres.query( `INSERT INTO deployment ( "networkId", "subCategoryId", created ) VALUES ( ${networkId}, ${ row.subCategoryId }, '${row.created.toISOString()}' ) RETURNING id, created` )
     .then( result => insertSensors( result.rows[0].id, result.rows[0].created ) )
 }
 
@@ -35,15 +35,24 @@ let current = start,
     networkId = undefined,
     deployments = [ ]
 
-Postgres.query( `SELECT id FROM network WHERE name = 'vodafone'` )
-.then( result => {
-    networkId = result.rows[0].id
+Promise.all( [
+    Postgres.query( `SELECT id FROM network WHERE name = 'vodafone'` ),
+    Postgres.query( `SELECT id FROM "subCategory"` ),
+] )
+.then( ( [ networkResult, subCategoryResult ] ) => {
+    const subCategoryIds = subCategoryResult.rows.map( row => row.id )
+    networkId = networkResult.rows[0].id
     
     while( end.isAfter( current ) ) {
-        const deploymentCount = Math.round( Stochastic.norm( 5, Math.sqrt( 5 ), 1 ) ),
+        const deploymentCount = Math.round( Math.abs( Stochastic.norm( 5, Math.sqrt( 5 ), 1 ) ) ),
               scopeDate = current.toDate().getTime()
 
-        Array.from( Array( deploymentCount ).keys() ).forEach( () => deployments.push( { created: new Date( scopeDate + ( getRandomInt( 0, 23 ) * getRandomInt( 0, 60 ) * getRandomInt( 0, 60 ) * 1000 ) ) } ) )
+        Array.from( Array( deploymentCount ).keys() ).forEach( () =>
+            deployments.push( {
+                created: new Date( scopeDate + ( getRandomInt( 0, 23 ) * getRandomInt( 0, 60 ) * getRandomInt( 0, 60 ) * 1000 ) ),
+                subCategoryId: subCategoryIds[ getRandomInt( 0, subCategoryIds.length - 1 ) ]
+            } )
+        )
 
         current.add( 1, 'days' )
     }

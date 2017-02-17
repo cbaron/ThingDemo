@@ -56,6 +56,7 @@ module.exports = Object.create( Object.assign( {}, require('./lib/MyObject'), {
         timeSeries:       'timeSeries',
         geo:              'geo',
         me:               'me',
+        revenue:          'revenue',
         sensorsByNetwork: 'sensorsByNetwork',
         widgets:          'widgets'
     },
