@@ -3,6 +3,33 @@ module.exports = Object.assign( {}, require('./__proto__'), {
     curveLength: 300,
     rootRadius: 20,
 
+    addText() {
+        this.d3.select( this.els.text )
+            .append( 'text' )
+            .attr( 'class', 'root' )
+            .attr( 'x', this.points.root.x )
+            .attr( 'y', this.points.root.y )
+            .text('All')
+
+        this.model.category.data.forEach( ( datum, i ) => {
+
+            this.d3.select( this.els.text )
+                .append( 'text' )
+                .attr( 'x', this.points.children[i].x )
+                .attr( 'y', this.points.children[i].y )
+                .text( datum.label )
+                .on( 'click', () => this.onCategoryClick( datum.i ) )
+
+            this.d3.select( this.els.text )
+                .append( 'text' )
+                .attr( 'class', 'revenue' )
+                .attr( 'x', this.points.children[i].x + 100 )
+                .attr( 'y', this.points.children[i].y )
+                .text( this.NumberFormat.format( this.categories[ datum.id ].revenue ) )
+
+        } )
+    },
+
     assignPoints() {
 
         this.points = { root: { }, children: [ ] }
@@ -17,65 +44,66 @@ module.exports = Object.assign( {}, require('./__proto__'), {
             y: this.model.y = this.els.svg.clientHeight / 2
         }
 
+        this.model.category.data.forEach( datum => {
+            console.log( this.categories[ datum.id ].revenue )
+            console.log( this.categoryScale(this.categories[ datum.id ].revenue) )
+        } )
+
         this.points.children =
             this.model.category.data.map( ( datum, i ) => ( {
+                size: this.categoryScale( this.categories[ datum.id ].revenue ),
                 x: this.points.root.x + this.curveLength,
                 y: this.verticalScale( i )
             } ) )
     },
 
+    createScales() {
+
+        this.colorScale =
+            this.d3.scaleLinear()
+                .domain( [ 0, this.model.category.data.length - 1 ] )
+                //.range( ["#1ddfc7", "#25e6b9" ] )
+                .range( ["#81b441", "#25e6b9" ] )
+
+        this.categoryScale = this.d3.scaleLinear()
+            .domain( this.domains.category )
+            .range( [ 1, 20 ] )
+        
+        this.subCategoryScale = this.d3.scaleLinear()
+            .domain( this.domains.subCategory )
+            .range( [ 1, 20 ] )
+    },
+
     d3: Object.assign( require('d3-selection'), require('d3-scale'), require('d3-shape') ),
 
-    modelTwo: {
-        name: 'totalRevenue',
-        label: 'China Unicom IoT Data Revenue',
-        children: [
-            {
-                revenue: 6.7,
-                name: 'temperature',
-                label: 'Temperature'
-            },
-            {
-                revenue: 3.2,
-                name: 'transactions',
-                label: 'Transactions'
-            },
-            {
-                revenue: 2.2,
-                name: 'network',
-                label: 'Network Utilization'
-            },
-            {
-                revenue: 10.3,
-                name: 'deviceType',
-                label: 'Device Type'
-            },
-            {
-                revenue: 1,
-                name: 'deployment',
-                label: 'Deployment'
-            },
-            {
-                revenue: 1.1,
-                name: 'interaction',
-                label: 'Interaction'
-            },
-            {
-                revenue: .5,
-                name: 'segmentation',
-                label: 'Segmentation'
-            },
-            {
-                revenue: .5,
-                name: 'failure',
-                label: 'Failure'
-            },
-            {
-                revenue: .3,
-                name: 'deviceUtil',
-                label: 'Device Utilization'
-            }
-        ]
+    handleData() {
+        this.domains = {
+            category: [ Infinity, 0 ],
+            subCategory: [ Infinity, 0 ]
+        }
+
+        this.categories = this.model.category.data.reduce( ( memo, datum ) => Object.assign( memo, { [ datum.id ]: { name: datum.name, label: datum.label, revenue: 0 } } ), { } )
+        this.subCategories = this.model.subCategory.data.reduce( ( memo, datum ) => Object.assign( memo, { [ datum.id ]: { name: datum.name, label: datum.label, categoryId: datum.categoryId, revenue: 0 } } ), { } )
+
+        this.model.revenue.data.forEach( datum => {
+            const sum = parseInt( datum.sum ),
+                  subCategory = this.subCategories[ datum.subCategoryId ]
+
+            if( sum < this.domains.subCategory[0] ) this.domains.subCategory[0] = sum
+            if( sum > this.domains.subCategory[1] ) this.domains.subCategory[1] = sum
+
+            subCategory.revenue += sum
+            this.categories[ subCategory.categoryId ].revenue += sum
+        } )
+
+        Object.keys( this.categories ).forEach( id => {
+            const sum = this.categories[id].revenue
+            if( sum < this.domains.category[0] ) this.domains.category[0] = sum
+            if( sum > this.domains.category[1] ) this.domains.category[1] = sum
+        } )
+    },
+
+    onCategoryClicked( id ) {
     },
 
     centerGraph() {
@@ -325,41 +353,24 @@ module.exports = Object.assign( {}, require('./__proto__'), {
             this.model[ resource ].get( resource === 'revenue' ? { query: this.opts.dates, role: this.user.data.role  } : {} ) )
         )
         .then( () => {
-            this.categories = this.model.category.data.reduce( ( memo, datum ) => Object.assign( memo, { [ datum.id ]: { name: datum.name, label: datum.label, revenue: 0 } } ), { } )
-            this.subCategories = this.model.subCategory.data.reduce( ( memo, datum ) => Object.assign( memo, { [ datum.id ]: { name: datum.name, label: datum.label, categoryId: datum.categoryId, revenue: 0 } } ), { } )
 
-            this.model.revenue.data.forEach( datum => {
-                const sum = parseInt( datum.sum ),
-                      subCategory = this.subCategories[ datum.subCategoryId ]
-                subCategory.revenue += sum
-                this.categories[ subCategory.categoryId ].revenue += sum
-            } )
+            this.handleData()
 
-            console.log( this.model.category.data );
-            console.log( this.model.subCategory.data );
-            console.log( this.model.revenue.data );
+            this.createScales() 
 
             this.assignPoints()
-            
-            //this.model.revenue = this.model.children.reduce( ( memo, val ) => memo + val, 0 )
-                
-            this.assignPoints()
-
-            this.colorScale =
-                this.d3.scaleLinear()
-                    .domain( [ 0, this.categories.data.length - 1 ] )
-                    //.range( ["#1ddfc7", "#25e6b9" ] )
-                    .range( ["#81b441", "#25e6b9" ] )
                  
             this.line =
                 this.d3.line()
                 .curve( this.d3.curveBundle )
 
             this.points.children.forEach( ( child, i ) => {
+                console.log(child.size)
                 this.d3.select( this.els.lines )
                 .append( 'path' )
                     .attr( 'd', this.line( [ [ this.points.root.x, this.points.root.y ], [ this.points.root.x + 100, child.y ], [ child.x, child.y ] ] ) )
                     .style( 'stroke', this.colorScale(i) )
+                    .style( 'stroke-width', child.size )
             } )
 
             this.d3.select( this.els.points )
@@ -368,7 +379,7 @@ module.exports = Object.assign( {}, require('./__proto__'), {
                 .attr( 'cy', this.points.root.y )
                 .attr( 'r', this.rootRadius )
                 .style( 'stroke', this.colorScale(0) )
-                .style( 'fill', this.colorScale( this.categories.data.length - 1) )
+                .style( 'fill', this.colorScale( this.model.category.data.length - 1) )
 
             this.points.children.forEach( ( child, i ) => {
                 this.d3.select( this.els.points )
@@ -379,6 +390,9 @@ module.exports = Object.assign( {}, require('./__proto__'), {
                     .style( 'fill', this.colorScale(i) )
                     .style( 'stroke', this.colorScale.invert(i) )
             } )
+
+            this.addText()
+            
         } )
 
         return this;

@@ -59,7 +59,7 @@ module.exports = Object.assign( {}, require('./__proto__'), {
     },
 
     size() {
-        if( this.views.api ) this.views.api.setHeight( this.getHeight() )
+        if( this.views.revenue ) this.views.revenue.setHeight( this.getHeight() )
         if( this.views.geo ) this.views.geo.setHeight( this.getHeight() )
         return true
     },
