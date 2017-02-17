@@ -5,22 +5,23 @@ module.exports = Object.assign( {}, require('./__proto__'), {
 
     assignPoints() {
 
+        this.points = { root: { }, children: [ ] }
+
         this.verticalScale =
             this.d3.scaleLinear()
-                .domain( [ 0, 7 ] )
+                .domain( [ 0, this.model.category.data.length ] )
                 .range( [ 20, this.height - 20 ] )
 
-        Object.assign( this.model, {
+        this.points.root = {
             x: ( this.els.svg.clientWidth / 2 ) - ( this.curveLength / 2 ),
             y: this.model.y = this.els.svg.clientHeight / 2
-        } )
+        }
 
-        this.model.children.forEach( ( child, i ) => {
-            Object.assign( child, {
-                x: this.model.x + this.curveLength,
+        this.points.children =
+            this.model.category.data.map( ( datum, i ) => ( {
+                x: this.points.root.x + this.curveLength,
                 y: this.verticalScale( i )
-            } )
-        } )
+            } ) )
     },
 
     d3: Object.assign( require('d3-selection'), require('d3-scale'), require('d3-shape') ),
@@ -312,21 +313,41 @@ module.exports = Object.assign( {}, require('./__proto__'), {
 
     postRender() {
 
-        this.model = Object.create( this.Model, { resource: { value: 'revenue' } } )
+        this.model = {
+            category: Object.create( this.Model, { resource: { value: 'category' } } ),
+            revenue: Object.create( this.Model, { resource: { value: 'revenue' } } ),
+            subCategory: Object.create( this.Model, { resource: { value: 'subCategory' } } )
+        }
 
         this.setHeight( this.height )
 
-        this.model.get( { query: this.opts.dates, role: this.user.data.role  } )
+        Promise.all( [ 'revenue', 'category', 'subCategory' ].map( resource =>
+            this.model[ resource ].get( resource === 'revenue' ? { query: this.opts.dates, role: this.user.data.role  } : {} ) )
+        )
         .then( () => {
-            console.log( this.model.data );
+            this.categories = this.model.category.data.reduce( ( memo, datum ) => Object.assign( memo, { [ datum.id ]: { name: datum.name, label: datum.label, revenue: 0 } } ), { } )
+            this.subCategories = this.model.subCategory.data.reduce( ( memo, datum ) => Object.assign( memo, { [ datum.id ]: { name: datum.name, label: datum.label, categoryId: datum.categoryId, revenue: 0 } } ), { } )
 
-            this.model.revenue = this.model.children.reduce( ( memo, val ) => memo + val, 0 )
+            this.model.revenue.data.forEach( datum => {
+                const sum = parseInt( datum.sum ),
+                      subCategory = this.subCategories[ datum.subCategoryId ]
+                subCategory.revenue += sum
+                this.categories[ subCategory.categoryId ].revenue += sum
+            } )
+
+            console.log( this.model.category.data );
+            console.log( this.model.subCategory.data );
+            console.log( this.model.revenue.data );
+
+            this.assignPoints()
+            
+            //this.model.revenue = this.model.children.reduce( ( memo, val ) => memo + val, 0 )
                 
             this.assignPoints()
 
             this.colorScale =
                 this.d3.scaleLinear()
-                    .domain( [ 0, this.model.children.length - 1 ] )
+                    .domain( [ 0, this.categories.data.length - 1 ] )
                     //.range( ["#1ddfc7", "#25e6b9" ] )
                     .range( ["#81b441", "#25e6b9" ] )
                  
@@ -334,22 +355,22 @@ module.exports = Object.assign( {}, require('./__proto__'), {
                 this.d3.line()
                 .curve( this.d3.curveBundle )
 
-            this.model.children.forEach( ( child, i ) => {
+            this.points.children.forEach( ( child, i ) => {
                 this.d3.select( this.els.lines )
                 .append( 'path' )
-                    .attr( 'd', this.line( [ [ this.model.x, this.model.y ], [ this.model.x + 100, child.y ], [ child.x, child.y ] ] ) )
+                    .attr( 'd', this.line( [ [ this.points.root.x, this.points.root.y ], [ this.points.root.x + 100, child.y ], [ child.x, child.y ] ] ) )
                     .style( 'stroke', this.colorScale(i) )
             } )
 
             this.d3.select( this.els.points )
                 .append( 'circle' )
-                .attr( 'cx', this.model.x )
-                .attr( 'cy', this.model.y )
+                .attr( 'cx', this.points.root.x )
+                .attr( 'cy', this.points.root.y )
                 .attr( 'r', this.rootRadius )
                 .style( 'stroke', this.colorScale(0) )
-                .style( 'fill', this.colorScale(this.model.children.length - 1) )
+                .style( 'fill', this.colorScale( this.categories.data.length - 1) )
 
-            this.model.children.forEach( ( child, i ) => {
+            this.points.children.forEach( ( child, i ) => {
                 this.d3.select( this.els.points )
                 .append( 'circle' )
                     .attr( 'cx', child.x )

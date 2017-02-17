@@ -1,24 +1,22 @@
 module.exports = Object.assign( { }, require('../lib/MyObject'), {
     
+    Db: require('./lib/Db'),
+
     Jwt: require('./lib/Jwt'),
 
     Postgres: require('../dal/Postgres'),
 
-    apply( method ) { return this.createChain( method ).callChain },
+    Response: require('./lib/Response'),
 
-    createChain( method ) {
-        var start
-            
-        this.callChain = new Promise( resolve => start = resolve );
-
-        ( this[ method ] ) 
-            ? this.callChain = this.callChain.then( () => this[ method ].call( this ) )
-            : [ this.Validate, this.Context, this.Db, this.Response ]
-              .forEach( obj => this.callChain = this.callChain.then( result => obj.apply( this, result ) ) )
-
-        start();
-
-        return this
+    apply( method ) {
+        return this.Jwt.parseToken( this.parseCookies( this.request.headers.cookie ) )
+        .then( user => {
+            if( Object.keys( user ).length === 0 ) return this.respond( { stopChain: true, code: 401 } )
+            this.user = user
+            this.query = qs.length ? JSON.parse( decodeURIComponent( this.qs ) ) : { }
+            return this.Db.apply( this )
+        } )
+        .then( result => this.Response.apply( this, result ) )
     },
 
     end( data ) {
@@ -38,8 +36,6 @@ module.exports = Object.assign( { }, require('../lib/MyObject'), {
         'Cache-Control': 'no-cache, no-store, must-revalidate',
         'Keep-Alive': 'timeout=50, max=100'
     },
-
-    notFound( stopChain=false ) { return this.respond( { stopChain, code: 404 } ) },
 
     parseCookies( cookies ) {
         var rv
