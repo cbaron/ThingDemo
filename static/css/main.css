@@ -357,6 +357,9 @@ div.showing .Header .accountUi .menu {
   text-anchor: middle;
   dominant-baseline: text-after-edge;
 }
+.Revenue svg .text .category {
+  cursor: pointer;
+}
 .Revenue svg .text .root {
   dominant-baseline: central;
 }

@@ -7,24 +7,27 @@ module.exports = Object.assign( {}, require('./__proto__'), {
         this.d3.select( this.els.text )
             .append( 'text' )
             .attr( 'class', 'root' )
-            .attr( 'x', this.points.root.x )
-            .attr( 'y', this.points.root.y )
+            .attr( 'x', this.root.x )
+            .attr( 'y', this.root.y )
             .text('All')
 
         this.model.category.data.forEach( ( datum, i ) => {
 
             this.d3.select( this.els.text )
                 .append( 'text' )
-                .attr( 'x', this.points.children[i].x )
-                .attr( 'y', this.points.children[i].y )
+                .attr( 'class', 'category' )
+                .attr( 'data-id', datum.id )
+                .attr( 'x', datum.x )
+                .attr( 'y', datum.y )
                 .text( datum.label )
-                .on( 'click', () => this.onCategoryClick( datum.i ) )
+                .on( 'click', () => this.onCategoryClick( datum.id ) )
 
             this.d3.select( this.els.text )
                 .append( 'text' )
                 .attr( 'class', 'revenue' )
-                .attr( 'x', this.points.children[i].x + 100 )
-                .attr( 'y', this.points.children[i].y )
+                .attr( 'data-id', datum.id )
+                .attr( 'x', datum.x + 100 )
+                .attr( 'y', datum.y )
                 .text( this.NumberFormat.format( this.categories[ datum.id ].revenue ) )
 
         } )
@@ -32,29 +35,23 @@ module.exports = Object.assign( {}, require('./__proto__'), {
 
     assignPoints() {
 
-        this.points = { root: { }, children: [ ] }
-
         this.verticalScale =
             this.d3.scaleLinear()
                 .domain( [ 0, this.model.category.data.length ] )
                 .range( [ 20, this.height - 20 ] )
 
-        this.points.root = {
+        this.root = {
             x: ( this.els.svg.clientWidth / 2 ) - ( this.curveLength / 2 ),
             y: this.model.y = this.els.svg.clientHeight / 2
         }
 
-        this.model.category.data.forEach( datum => {
-            console.log( this.categories[ datum.id ].revenue )
-            console.log( this.categoryScale(this.categories[ datum.id ].revenue) )
-        } )
-
-        this.points.children =
-            this.model.category.data.map( ( datum, i ) => ( {
+        this.model.category.data.forEach( ( datum, i ) =>
+            Object.assign( datum, {
                 size: this.categoryScale( this.categories[ datum.id ].revenue ),
-                x: this.points.root.x + this.curveLength,
+                x: this.root.x + this.curveLength,
                 y: this.verticalScale( i )
-            } ) )
+            } )
+        )
     },
 
     createScales() {
@@ -74,7 +71,7 @@ module.exports = Object.assign( {}, require('./__proto__'), {
             .range( [ 1, 20 ] )
     },
 
-    d3: Object.assign( require('d3-selection'), require('d3-scale'), require('d3-shape') ),
+    d3: Object.assign( require('d3-selection'), require('d3-scale'), require('d3-shape'), require('d3-transition'), require('d3-ease') ),
 
     handleData() {
         this.domains = {
@@ -103,7 +100,46 @@ module.exports = Object.assign( {}, require('./__proto__'), {
         } )
     },
 
-    onCategoryClicked( id ) {
+    onCategoryClick( id ) {
+        this.hide = this.d3.transition()
+            .duration( 750 )
+            .ease( this.d3.easeLinear )
+
+        const line = this.d3.line(),
+              attrSelector = `[data-id="${id}"]`
+
+        this.d3.selectAll(`svg .text .category:not(${ attrSelector })`).transition( this.hide )
+            .style( 'fill', 'transparent' )
+            .style( 'stroke', 'transparent' )
+
+        this.d3.selectAll(`svg .text .revenue:not(${ attrSelector })`).transition( this.hide )
+            .style( 'fill', 'transparent' )
+            .style( 'stroke', 'transparent' )
+        
+        this.d3.selectAll( `svg .lines path.category` ).transition( this.hide )
+            .style( 'fill', 'transparent' )
+            .style( 'stroke', 'transparent' )
+            .on( 'end', () => {
+
+                this.d3.select( `svg .text .root` )
+                    .transition( this.hide )
+                    .style( 'fill', 'transparent' )
+                    .style( 'stroke', 'transparent' )
+
+            this.d3.select( `svg .text .revenue${ attrSelector }` )
+                    .transition( this.hide )
+                    .style( 'x', this.els.container.clientWidth - 200 )
+                    .style( 'y', 100 )
+
+                this.d3.select( `svg .text .category${ attrSelector }` )
+                    .transition( this.hide )
+                    .attr( 'x', this.root.x - ( this.rootRadius * 2 ) )
+                    .attr( 'y', this.root.y - ( this.rootRadius * 2 ) )
+                    .on( 'end', () => this.showSubCategories( id ) )
+            } )
+    },
+
+    showSubCategories( categoryId ) {
     },
 
     centerGraph() {
@@ -153,158 +189,6 @@ module.exports = Object.assign( {}, require('./__proto__'), {
             .transition().style("opacity",1);
     },
 
-    datatip: `<div class="tooltip" style="width: 250px; background-opacity:.5">` +
-             `<div class="header1">HEADER1</div>` +
-             `<div class="header-rule"></div>` +
-             `<div class="header2"> HEADER2 </div>` +
-             `<div class="header-rule"></div>` +
-             `<div class="header3"> HEADER3 </div>` +
-             `</div>`,
-
-    formatCurrency(d) {
-        if (isNaN(d)) d = 0; return "$" + d3.format(",.2f")(d) + " Billion";
-     },
-
-    initializeViz() {
-        this.viz = vizuly.viz.weighted_tree( this.els.container )
-
-        //Here we create three vizuly themes for each radial progress component.
-        //A theme manages the look and feel of the component output.  You can only have
-        //one component active per theme, so we bind each theme to the corresponding component.
-        this.theme =
-            vizuly.theme.weighted_tree( this.viz )
-                        .skin(vizuly.skin.WEIGHTED_TREE_AXIIS)
-
-        //Like D3 and jQuery, vizuly uses a function chaining syntax to set component properties
-        //Here we set some bases line properties for all three components.
-        this.viz.data(this.data)
-            .width(this.els.container.clientWidth) 
-            .height(this.els.container.clientHeight * .8)
-            .children( d => d.values || [ ] )
-            .key( d => d.id )
-            .value( d => Number( d.agg_revenue ) )
-            .fixedSpan(-1)
-            .label( d => this.trimLabel( d.key ) )
-            .on( "measure", this.onMeasure.bind(this) )
-            .on( "mouseover", this.onMouseOver.bind(this) )
-            .on( "mouseout", this.onMouseOut.bind(this) )
-            .on( "click", this.onClick.bind(this) )
-        
-        //We use this function to size the components based on the selected value from the RadiaLProgressTest.html page.
-        //this.changeSize( this.els.container.clientWidth, this.height )
-        this.initialized = true
-        this.setHeight( this.height )
-
-        //this.style()
-
-        // Open up some of the tree branches.
-        //this.viz.toggleNode(this.data.values[2]);
-        //this.viz.toggleNode(this.data.values[2].values[0]);
-        //this.viz.toggleNode(this.data.values[3]);
-    },
-
-    loadData() {
-
-        const csv = [
-            {
-                revenue: 1,
-                id: 'temperature',
-                key: 'Temperature'
-            },
-            {
-                revenue: 2,
-                id: 'transactions',
-                key: 'Transactions'
-            },
-            {
-                revenue: 3,
-                id: 'network',
-                key: 'Network Utilization'
-            },
-            {
-                revenue: 4,
-                id: 'deviceType',
-                key: 'Device Type'
-            },
-            {
-                revenue: 5,
-                id: 'deployment',
-                key: 'Deployment'
-            },
-            {
-                revenue: 6,
-                id: 'segmentation',
-                key: 'Segmentation'
-            },
-            {
-                revenue: 7,
-                id: 'failure',
-                key: 'Failure'
-            },
-            {
-                revenue: 8,
-                id: 'deviceUtil',
-                key: 'Device Utilization'
-            }
-        ]
-
-        //d3.csv("/static/data/weightedtree_federal_budget.csv", newcsv => {
-        
-        this.data.values = this.prepData( csv )
-        
-        this.initializeViz()
-
-        return;
-
-            this.data.values = {
-                revenue: 10,
-                id: 'root',
-                key: 'China Unicom IOT Data Revenue',
-                values: [
-                    {
-                        revenue: 1,
-                        id: 'temperature',
-                        key: 'Temperature'
-                    },
-                    {
-                        revenue: 2,
-                        id: 'transactions',
-                        key: 'Transactions'
-                    },
-                    {
-                        revenue: 3,
-                        id: 'network',
-                        key: 'Network Utilization'
-                    },
-                    {
-                        revenue: 4,
-                        id: 'deviceType',
-                        key: 'Device Type'
-                    },
-                    {
-                        revenue: 5,
-                        id: 'deployment',
-                        key: 'Deployment'
-                    },
-                    {
-                        revenue: 6,
-                        id: 'segmentation',
-                        key: 'Segmentation'
-                    },
-                    {
-                        revenue: 7,
-                        id: 'failure',
-                        key: 'Failure'
-                    },
-                    {
-                        revenue: 8,
-                        id: 'deviceUtil',
-                        key: 'Device Utilization'
-                    }
-                ],
-            };
-    },
-
     onDateChange( el, e ) {
         this.opts.dates[ el ] = this.Moment( e )
 
@@ -316,27 +200,6 @@ module.exports = Object.assign( {}, require('./__proto__'), {
         this.setTimeScale()
 
         this.drawGraph()
-    },
-
-    onMeasure() {
-       // Allows you to manually override vertical spacing
-       //this.viz.tree().nodeSize([100,0]);
-    },
-
-    onMouseOver(e,d,i) {
-        if (d == this.data) return;
-        var rect = e.getBoundingClientRect();
-        if (d.target) d = d.target; //This if for link elements
-        this.createDataTip(rect.left, rect.top, d.key, this.formatCurrency(d.agg_revenue), this.valueField);
-    },
-
-     onMouseOut(e,d,i) {
-        d3.selectAll(".vz-weighted_tree-tip").remove();
-    },
-
-   //We can capture click events and respond to them
-    onClick(e,d,i) {
-        this.viz.toggleNode(d);
     },
 
     postRender() {
@@ -364,29 +227,30 @@ module.exports = Object.assign( {}, require('./__proto__'), {
                 this.d3.line()
                 .curve( this.d3.curveBundle )
 
-            this.points.children.forEach( ( child, i ) => {
-                console.log(child.size)
+            this.model.category.data.forEach( ( datum, i ) => {
                 this.d3.select( this.els.lines )
                 .append( 'path' )
-                    .attr( 'd', this.line( [ [ this.points.root.x, this.points.root.y ], [ this.points.root.x + 100, child.y ], [ child.x, child.y ] ] ) )
+                    .attr( 'class', 'category' )
+                    .attr( 'data-id', datum.id )
+                    .attr( 'd', this.line( [ [ this.root.x, this.root.y ], [ this.root.x + 100, datum.y ], [ datum.x, datum.y ] ] ) )
                     .style( 'stroke', this.colorScale(i) )
-                    .style( 'stroke-width', child.size )
+                    .style( 'stroke-width', datum.size )
             } )
 
             this.d3.select( this.els.points )
                 .append( 'circle' )
-                .attr( 'cx', this.points.root.x )
-                .attr( 'cy', this.points.root.y )
+                .attr( 'cx', this.root.x )
+                .attr( 'cy', this.root.y )
                 .attr( 'r', this.rootRadius )
                 .style( 'stroke', this.colorScale(0) )
                 .style( 'fill', this.colorScale( this.model.category.data.length - 1) )
 
-            this.points.children.forEach( ( child, i ) => {
+            this.model.category.data.forEach( ( datum, i ) => {
                 this.d3.select( this.els.points )
                 .append( 'circle' )
-                    .attr( 'cx', child.x )
-                    .attr( 'cy', child.y )
-                    .attr( 'cy', child.y )
+                    .attr( 'cx', datum.x )
+                    .attr( 'cy', datum.y )
+                    .attr( 'cy', datum.y )
                     .style( 'fill', this.colorScale(i) )
                     .style( 'stroke', this.colorScale.invert(i) )
             } )
@@ -418,56 +282,6 @@ module.exports = Object.assign( {}, require('./__proto__'), {
             this.loadData();
 
         return this
-    },
-
-    prepData( csv ) {
-
-        //Make our data into a nested tree.  If you already have a nested structure you don't need to do this.
-        var nest = d3.nest()
-            .key( d => d.key )
-            .entries( csv )
-
-        //This will be a viz.data function;
-        vizuly.data.aggregateNest( nest, this.valueFields, ( a, b ) => Number(a) + Number(b) )
-
-        this.removeEmptyNodes( { values: nest }, "0", "0" );
-
-        return nest
-    },
-
-    //Remove empty child nodes left at end of aggregation and add unqiue ids
-    removeEmptyNodes( node, parentId, childId ) {
-        if (!node) return
-        node.id = `${parentId}_${childId}`
-        if (node.values) {
-            for(var i = node.values.length - 1; i >= 0; i--) {
-                node.id=parentId + "_" + i;
-                if(!node.values[i].key && !node.values[i].Level4) {
-                    node.values.splice(i, 1);
-                }
-                else {
-                    this.removeEmptyNodes(node.values[i],node.id,i)
-                }
-            }
-        }
-    },
-
-    style() {
-        const paths = this.d3.selectAll('.vz-weighted_tree-link-plot path'),
-              colorScale = this.d3.scaleLinear()
-                .domain( [ 0, paths.size() - 1 ] )
-                .range( ["#1ddfc7", "#25e6b9" ] ),
-              fn = ( d, i ) => colorScale(i)
-       
-        paths.style( 'stroke', fn )
-        
-        this.d3.selectAll('.vz-weighted_tree-node-plot circle')
-            .style( 'stroke', fn )
-            .style( 'fill', fn )
-    },
-
-    trimLabel (label) {
-       return (String(label).length > 20) ? String(label).substr(0, 17) + "..." : label
     }
 
 } )
