@@ -1,6 +1,6 @@
 .Revenue
     svg
-        height: 100%
+        display: block
         width: 100%
 
         .lines
@@ -16,8 +16,8 @@
             .category
                 cursor: pointer 
             
-            .root
+            .root, .total, .root-revenue
                 dominant-baseline: central
             
-            .revenue
-                text-anchor: left
+            .revenue, .root-revenue
+                text-anchor: end

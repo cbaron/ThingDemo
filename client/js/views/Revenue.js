@@ -1,60 +1,201 @@
 module.exports = Object.assign( {}, require('./__proto__'), {
 
+    Moment: require('moment'),
+
     curveLength: 300,
     rootRadius: 20,
 
-    addText() {
-        this.d3.select( this.els.text )
-            .append( 'text' )
-            .attr( 'class', 'root' )
-            .attr( 'x', this.root.x )
-            .attr( 'y', this.root.y )
-            .text('All')
-
-        this.model.category.data.forEach( ( datum, i ) => {
-
-            this.d3.select( this.els.text )
-                .append( 'text' )
-                .attr( 'class', 'category' )
-                .attr( 'data-id', datum.id )
-                .attr( 'x', datum.x )
-                .attr( 'y', datum.y )
-                .text( datum.label )
-                .on( 'click', () => this.onCategoryClick( datum.id ) )
-
-            this.d3.select( this.els.text )
-                .append( 'text' )
-                .attr( 'class', 'revenue' )
-                .attr( 'data-id', datum.id )
-                .attr( 'x', datum.x + 100 )
-                .attr( 'y', datum.y )
-                .text( this.NumberFormat.format( this.categories[ datum.id ].revenue ) )
-
-        } )
+    determineTotalRevenue() {
+        this.totalRevenue = {
+            x: this.root.x + this.curveLength + 200 + 50,
+            y: this.padding * -.75,
+            value: this.NumberFormat.format( Object.keys( this.categories ).reduce( ( memo, id ) => memo + this.categories[id].revenue, 0 ) )
+        }
     },
 
-    assignPoints() {
+    addText( categoryId ) {
+
+        if( !categoryId ) {
+   
+            this.determineTotalRevenue() 
+           
+            this.d3.select( this.els.text )
+                .append( 'text' )
+                .attr( 'class', 'root' )
+                .attr( 'x', this.root.x )
+                .attr( 'y', this.root.y )
+                .text('All')
+
+            this.d3.select( this.els.text )
+                .append( 'text' )
+                .attr( 'class', 'root-revenue' )
+                .attr( 'x', this.root.x + this.curveLength + 200 )
+                .attr( 'y', this.padding * -.75 )
+                .text( this.totalRevenue.value )
+
+            this.d3.select( this.els.text )
+                .append( 'text' )
+                .attr( 'class', 'total' )
+                .attr( 'x', this.totalRevenue.x )
+                .attr( 'y', this.totalRevenue.y )
+                .text( 'Total' )
+
+            this.model.category.data.forEach( ( datum, i ) => {
+
+                this.d3.select( this.els.text )
+                    .append( 'text' )
+                    .attr( 'class', 'category' )
+                    .attr( 'data-id', datum.id )
+                    .attr( 'x', datum.x )
+                    .attr( 'y', datum.y )
+                    .text( datum.label )
+                    .on( 'click', () => this.onCategoryClick( datum.id ) )
+
+                this.d3.select( this.els.text )
+                    .append( 'text' )
+                    .attr( 'class', 'category revenue' )
+                    .attr( 'data-id', datum.id )
+                    .attr( 'x', datum.x + 200 )
+                    .attr( 'y', datum.y )
+                    .text( this.NumberFormat.format( this.categories[ datum.id ].revenue ) )
+            } )
+
+        } else {
+
+            this.categories[ categoryId ].subCategories.forEach( ( id, i ) => {
+
+                this.d3.select( this.els.text )
+                    .append( 'text' )
+                    .attr( 'class', 'sub-category' )
+                    .attr( 'x', this.subCategories[id].x )
+                    .attr( 'y', this.subCategories[id].y )
+                    .text( this.subCategories[id].label )
+
+                this.d3.select( this.els.text )
+                    .append( 'text' )
+                    .attr( 'class', 'sub-category revenue' )
+                    .attr( 'x', this.subCategories[id].x + 200 )
+                    .attr( 'y', this.subCategories[id].y )
+                    .text( this.NumberFormat.format( this.subCategories[id].revenue ) )
+            } )
+        }
+    },
+
+    createLines( categoryId ) {
+
+        if( !categoryId ) {
+            this.model.category.data.forEach( ( datum, i ) => {
+                datum.stroke = this.colorScale(i)
+                this.d3.select( this.els.lines )
+                .append( 'path' )
+                    .attr( 'class', 'category' )
+                    .attr( 'data-id', datum.id )
+                    .attr( 'd', this.line( [ [ this.root.x, this.root.y ], [ this.root.x + 100, datum.y ], [ datum.x, datum.y ] ] ) )
+                    .style( 'stroke', datum.stroke )
+                    .style( 'stroke-width', datum.size )
+            } )
+        } else {
+           
+            const root = this.categories[ categoryId ].root
+            this.categories[ categoryId ].subCategories.forEach( ( id, i ) => {
+                this.d3.select( this.els.lines )
+                .append( 'path' )
+                    .attr( 'class', 'sub-category' )
+                    .attr( 'd', this.line( [ [ root.x, root.y ], [ root.x + 100, this.subCategories[id].y ], [ this.subCategories[id].x, this.subCategories[id].y ] ] ) )
+                    .style( 'stroke', this.colorScale(i) )
+                    .style( 'stroke-width', this.subCategories[id].size )
+            } )
+        }
+    },
+
+    createPoints( categoryId ) {
+        if( !categoryId ) {
+            this.model.category.data.forEach( ( datum, i ) => {
+                this.d3.select( this.els.points )
+                .append( 'circle' )
+                    .attr( 'cx', datum.x )
+                    .attr( 'cy', datum.y )
+                    .attr( 'r', datum.size )
+                    .attr( 'data-id', datum.id )
+                    .style( 'fill', this.colorScale(i) )
+                    .style( 'stroke', this.colorScale.invert(i) )
+            } )
+        } else {
+            this.categories[ categoryId ].subCategories.forEach( ( id, i ) => {
+                this.d3.select( this.els.points )
+                .append( 'circle' )
+                    .attr( 'cx', this.subCategories[id].x )
+                    .attr( 'cy', this.subCategories[id].y )
+                    .style( 'fill', this.colorScale(i) )
+                    .style( 'stroke', this.colorScale.invert(i) )
+            } )
+        }
+    },
+
+    createVerticalScale( length ) {
+        const scaleHeight = length * 30
+
+        this.padding = 80 
 
         this.verticalScale =
             this.d3.scaleLinear()
-                .domain( [ 0, this.model.category.data.length ] )
-                .range( [ 20, this.height - 20 ] )
+                .domain( [ 0, length - 1 ] )
+                .range( [ 0, scaleHeight ] )
 
-        this.root = {
-            x: ( this.els.svg.clientWidth / 2 ) - ( this.curveLength / 2 ),
-            y: this.model.y = this.els.svg.clientHeight / 2
-        }
+        this.svgHeight = scaleHeight + this.padding * 2
 
-        this.model.category.data.forEach( ( datum, i ) =>
-            Object.assign( datum, {
-                size: this.categoryScale( this.categories[ datum.id ].revenue ),
-                x: this.root.x + this.curveLength,
-                y: this.verticalScale( i )
-            } )
-        )
+        this.d3.select( this.els.svg )
+        .style( 'height', this.svgHeight )
+        
+        this.d3.select( this.els.all )
+        .attr( 'transform', `translate( 0, ${this.padding + ( this.padding * .25 )} )` )
+    },
+ 
+    reassignSizes() {
+        this.d3.select( `svg .text .root-revenue` )
+            .text( this.totalRevenue.value )       
+
+        this.model.category.data.forEach( datum => {
+
+            datum.size = this.categoryScale( this.categories[ datum.id ].revenue )
+
+            this.d3.select( `svg .lines path[data-id='${datum.id}']` )
+                .style( 'stroke-width', datum.size )
+            
+            this.d3.select( `svg .text .category.revenue[data-id='${datum.id}']` )
+                .text( this.NumberFormat.format( this.categories[ datum.id ].revenue ) )
+            
+        } )
     },
 
-    createScales() {
+    assignPoints( categoryId ) {
+    
+        if( !categoryId ) {    
+            this.model.category.data.forEach( ( datum, i ) =>
+                Object.assign( datum, {
+                    size: this.categoryScale( this.categories[ datum.id ].revenue ),
+                    x: this.root.x + this.curveLength,
+                    y: this.verticalScale( i )
+                } )
+            )
+        } else {
+            this.categories[ categoryId ].subCategories.forEach( ( id, i ) =>
+                Object.assign( this.subCategories[ id ], {
+                    size: this.subCategoryScale( this.subCategories[ id ].revenue ),
+                    x: this.root.x + this.curveLength,
+                    y: this.verticalScale( i )
+                } )
+            )
+        }
+    },
+
+    createCategoryRevenueScale() {
+        this.categoryScale = this.d3.scaleLinear()
+            .domain( this.domains.category )
+            .range( [ 1, 20 ] )
+    },
+
+    createCategoryScales() {
 
         this.colorScale =
             this.d3.scaleLinear()
@@ -62,32 +203,52 @@ module.exports = Object.assign( {}, require('./__proto__'), {
                 //.range( ["#1ddfc7", "#25e6b9" ] )
                 .range( ["#81b441", "#25e6b9" ] )
 
-        this.categoryScale = this.d3.scaleLinear()
-            .domain( this.domains.category )
-            .range( [ 1, 20 ] )
-        
+        this.createCategoryRevenueScale()
+
+        this.createVerticalScale( this.model.category.data.length )
+    },
+
+    createSubCategoryScales( categoryId ) {
+   
         this.subCategoryScale = this.d3.scaleLinear()
-            .domain( this.domains.subCategory )
+            .domain( this.domains.categoryId[ categoryId ] )
             .range( [ 1, 20 ] )
     },
 
     d3: Object.assign( require('d3-selection'), require('d3-scale'), require('d3-shape'), require('d3-transition'), require('d3-ease') ),
 
-    handleData() {
+    handleCategories() {
         this.domains = {
             category: [ Infinity, 0 ],
-            subCategory: [ Infinity, 0 ]
+            categoryId: { }
         }
 
-        this.categories = this.model.category.data.reduce( ( memo, datum ) => Object.assign( memo, { [ datum.id ]: { name: datum.name, label: datum.label, revenue: 0 } } ), { } )
-        this.subCategories = this.model.subCategory.data.reduce( ( memo, datum ) => Object.assign( memo, { [ datum.id ]: { name: datum.name, label: datum.label, categoryId: datum.categoryId, revenue: 0 } } ), { } )
+        this.categories = { }
+        this.model.category.data.forEach( datum => {
+            this.categories[ datum.id ] = { name: datum.name, label: datum.label, revenue: 0, subCategories: [ ] }
+            this.domains.categoryId[ datum.id ] = [ Infinity, 0 ]
+        } )
 
+        this.subCategories = { }
+        this.model.subCategory.data.forEach( datum => {
+            this.subCategories[ datum.id ] = { name: datum.name, label: datum.label, categoryId: datum.categoryId, revenue: 0 }
+            this.categories[ datum.categoryId ].subCategories.push( datum.id )
+        } )
+    },
+
+    zeroRevenue() {
+        this.domains.category = [ Infinity, 0 ]
+        Object.keys( this.categories ).forEach( id => {
+            this.categories[ id ].revenue = 0
+            this.domains.categoryId[ id ] = [ Infinity, 0 ]
+        } )
+        Object.keys( this.subCategories ).forEach( id => this.subCategories[ id ].revenue = 0 )
+    },
+
+    handleRevenue() {
         this.model.revenue.data.forEach( datum => {
             const sum = parseInt( datum.sum ),
                   subCategory = this.subCategories[ datum.subCategoryId ]
-
-            if( sum < this.domains.subCategory[0] ) this.domains.subCategory[0] = sum
-            if( sum > this.domains.subCategory[1] ) this.domains.subCategory[1] = sum
 
             subCategory.revenue += sum
             this.categories[ subCategory.categoryId ].revenue += sum
@@ -95,114 +256,193 @@ module.exports = Object.assign( {}, require('./__proto__'), {
 
         Object.keys( this.categories ).forEach( id => {
             const sum = this.categories[id].revenue
+
             if( sum < this.domains.category[0] ) this.domains.category[0] = sum
             if( sum > this.domains.category[1] ) this.domains.category[1] = sum
+
+            this.categories[ id ].subCategories.forEach( subCategoryId => {
+                const subCategorySum = this.subCategories[ subCategoryId ].revenue
+            
+                if( subCategorySum < this.domains.categoryId[id][0] ) this.domains.categoryId[id][0] = subCategorySum
+                if( subCategorySum > this.domains.categoryId[id][1] ) this.domains.categoryId[id][1] = subCategorySum
+            } )
         } )
     },
 
+    transitionOut( id ) {
+        const attrSelector = `[data-id="${id}"]`
+
+        if( this.rootId === 0 ) {
+
+            this.d3.selectAll(`svg .text .category:not(${ attrSelector })`).transition( this.t )
+                .style( 'opacity', 0 )
+                
+            this.d3.selectAll( `svg .lines path.category` ).transition( this.t )
+                .style( 'opacity', 0 )
+
+            this.d3.selectAll(`svg .text .revenue:not(${ attrSelector })`).transition( this.t )
+                .style( 'opacity', 0 )
+
+        } else {
+            
+            this.d3.selectAll(`svg .text .sub-category:not(${ attrSelector })`).transition( this.t ).remove()
+
+            this.d3.selectAll( `svg .lines path.sub-category` ).transition( this.t ).remove()
+
+            this.d3.selectAll(`svg .text .sub-category.revenue`).transition( this.t ).remove()
+        }
+
+    },
+
+    updateSubCategories() {
+        this.transitionOut( this.rootId )
+        this.showSubCategories( this.rootId, `[data-id="${this.rootId}"]` )
+    },
+
     onCategoryClick( id ) {
-        this.hide = this.d3.transition()
-            .duration( 750 )
-            .ease( this.d3.easeLinear )
+        const attrSelector = `[data-id="${id}"]`
 
-        const line = this.d3.line(),
-              attrSelector = `[data-id="${id}"]`
+        this.transitionOut(id) 
 
-        this.d3.selectAll(`svg .text .category:not(${ attrSelector })`).transition( this.hide )
-            .style( 'fill', 'transparent' )
-            .style( 'stroke', 'transparent' )
+        if( this.rootId === 0 ) {
+           
+            this.d3.select( `svg .text .root` )
+                .transition( this.t )
+                .style( 'opacity', 0 )
+                .on( 'end', () => this.showSubCategories( id, attrSelector ) )
 
-        this.d3.selectAll(`svg .text .revenue:not(${ attrSelector })`).transition( this.hide )
-            .style( 'fill', 'transparent' )
-            .style( 'stroke', 'transparent' )
-        
-        this.d3.selectAll( `svg .lines path.category` ).transition( this.hide )
-            .style( 'fill', 'transparent' )
-            .style( 'stroke', 'transparent' )
-            .on( 'end', () => {
+            this.rootId = id
+        } else {
+            const categoryData = this.model.category.data.find( model => model.id === id )
+            
+            this.createVerticalScale( this.model.category.data.length )
 
-                this.d3.select( `svg .text .root` )
-                    .transition( this.hide )
-                    .style( 'fill', 'transparent' )
-                    .style( 'stroke', 'transparent' )
+            this.d3.selectAll(`svg .text .sub-category:not(${ attrSelector })`).remove()
+            this.d3.selectAll( `svg .lines path.sub-category` ).remove()
+            this.d3.selectAll(`svg .text .sub-category.revenue`).remove()
 
-            this.d3.select( `svg .text .revenue${ attrSelector }` )
-                    .transition( this.hide )
-                    .style( 'x', this.els.container.clientWidth - 200 )
-                    .style( 'y', 100 )
+            this.d3.select( `svg .text .category${ attrSelector }` )
+                .transition( this.t )
+                .attr( 'x', categoryData.x )
+                .attr( 'y', categoryData.y )
+                .on( 'end', () => {
 
-                this.d3.select( `svg .text .category${ attrSelector }` )
-                    .transition( this.hide )
-                    .attr( 'x', this.root.x - ( this.rootRadius * 2 ) )
-                    .attr( 'y', this.root.y - ( this.rootRadius * 2 ) )
-                    .on( 'end', () => this.showSubCategories( id ) )
-            } )
-    },
+                this.d3.select( `svg .points .root` )
+                    .transition(this.t)
+                    .attr( 'cx', this.root.x )
+                    .attr( 'cy', this.root.y )
 
-    showSubCategories( categoryId ) {
-    },
+                    this.d3.select( `svg .text .root-revenue` )
+                    .transition( this.t )
+                    .text( this.totalRevenue.value )
 
-    centerGraph() {
-        let width = undefined
-        this.d3.select('g.vz-weighted_tree-plot').select( function() { width = this.getBBox().width } )
-        this.d3.select('g.vz-weighted_tree-plot')
-            .attr( 'transform', `translate( ${7 + ( this.els.container.clientWidth - width ) / 2}, ${this.els.container.clientHeight / 2} )` )
-    },
+                    this.d3.selectAll( `svg .text .revenue${ attrSelector }` )
+                        .transition( this.t )
+                        .attr( 'x', categoryData.x + 200 )
+                        .attr( 'y', categoryData.y )
+                        .style( 'opacity', 1 )
 
-    setHeight( height ) {
-        this.els.container.style.height = `${height}px`;
+                    this.d3.select( `svg .text .root` )
+                        .transition( this.t )
+                        .style( 'opacity', 1 )
 
-        if( this.initialized ) {
-            this.changeSize( this.els.container.clientWidth, height )
-            setTimeout( () => this.centerGraph(), 500 )
+                    this.d3.selectAll( `svg .text .category:not(${ attrSelector })` )
+                        .transition( this.t )
+                        .style( 'opacity', 1 )
+                    
+                    this.d3.selectAll( `svg .text .category.revenue:not(${ attrSelector })` )
+                        .transition( this.t )
+                        .style( 'opacity', 1 )
+                    
+                    this.d3.selectAll( `svg .lines path.category` )
+                        .transition( this.t )
+                        .style( 'opacity', 1 )
+                } )
+            
+            this.rootId = 0
         }
     },
 
-     //This changes the size of the component by adjusting the radius and width/height;
-    changeSize( w, h ) {
-        this.viz_container.transition().duration(300).style('width', w + 'px').style('height', h + 'px');
-        this.viz.width(w).height(h).update();
+    showSubCategories( categoryId, attrSelector ) {
+
+        this.createSubCategoryScales( categoryId )
+        
+        this.createVerticalScale( this.categories[ categoryId ].subCategories.length )
+
+        if( !this.categories[ categoryId ].root ) {
+            this.categories[ categoryId ].root = {
+                x: ( this.els.svg.clientWidth / 4 ),
+                y: ( this.svgHeight / 2 ) - this.padding
+            }
+        }
+        
+        const revenueSelection = this.d3.select( `svg .text .category.revenue${ attrSelector }` ),
+            root = this.categories[ categoryId ].root
+
+        revenueSelection
+            .transition( this.t )
+            .attr( 'x', this.totalRevenue.x )
+            .attr( 'y', this.totalRevenue.y )
+            .style( 'opacity', 0 )
+
+        this.d3.select( `svg .text .root-revenue` )
+        .transition( this.t )
+        .text( revenueSelection.text() )
+
+        this.d3.select( `svg .text .category${ attrSelector }` )
+            .transition( this.t )
+            .attr( 'x', root.x - ( this.rootRadius * 2 ) )
+            .attr( 'y', root.y - ( this.rootRadius * 2 ) )
+        
+        this.d3.select( `svg .points .root` )
+            .transition(this.t)
+            .attr( 'cx', root.x )
+            .attr( 'cy', root.y )               
+
+
+        this.assignPoints( categoryId )
+        
+        this.createLines( categoryId )
+        
+        //this.createPoints( categoryId )
+        
+        this.addText( categoryId )
     },
 
-    //This sets the same value for each radial progress
-    changeData( val ) {
-        this.valueField = this.valueFields[ Number(val) ];
-        this.viz.update();
-    },
-
-    // This function uses the above html template to replace values and then creates a new <div> that it appends to the
-    // document.body.  This is just one way you could implement a data tip.
-    createDataTip( x,y,h1,h2,h3 ) {
-
-        var html = this.datatip.replace("HEADER1", h1);
-        html = html.replace("HEADER2", h2);
-        html = html.replace("HEADER3", h3);
-
-        d3.select("body")
-            .append("div")
-            .attr("class", "vz-weighted_tree-tip")
-            .style("position", "absolute")
-            .style("top", y + "px")
-            .style("left", (x - 125) + "px")
-            .style("opacity",0)
-            .html(html)
-            .transition().style("opacity",1);
+    setHeight() {
+        if( this.initialized ) {
+        }
     },
 
     onDateChange( el, e ) {
         this.opts.dates[ el ] = this.Moment( e )
 
         if( this.opts.dates.to.isBefore( this.opts.dates.from ) ) return
+        
+        this.model.revenue.get( { query: this.opts.dates, role: this.user.data.role } )
+        .then( () => {
+            this.zeroRevenue()
 
-        return
-        this.clearGraph()
+            this.handleRevenue()
 
-        this.setTimeScale()
+            this.createCategoryRevenueScale()
 
-        this.drawGraph()
+            this.determineTotalRevenue() 
+
+            this.reassignSizes()
+
+            if( this.rootId !== 0 ) this.updateSubCategories()
+        } )
+        .catch( e => this.Error )
     },
 
     postRender() {
+
+        this.t = this.d3.transition()
+                .duration( 750 )
+                .ease( this.d3.easeLinear )
+
+        this.rootId = 0
 
         this.model = {
             category: Object.create( this.Model, { resource: { value: 'category' } } ),
@@ -210,16 +450,21 @@ module.exports = Object.assign( {}, require('./__proto__'), {
             subCategory: Object.create( this.Model, { resource: { value: 'subCategory' } } )
         }
 
-        this.setHeight( this.height )
-
         Promise.all( [ 'revenue', 'category', 'subCategory' ].map( resource =>
             this.model[ resource ].get( resource === 'revenue' ? { query: this.opts.dates, role: this.user.data.role  } : {} ) )
         )
         .then( () => {
 
-            this.handleData()
+            this.handleCategories()
 
-            this.createScales() 
+            this.handleRevenue()
+
+            this.createCategoryScales() 
+
+            this.root = {
+                x: ( this.els.svg.clientWidth / 4 ),
+                y: ( this.els.svg.clientHeight / 2 ) - this.padding
+            }
 
             this.assignPoints()
                  
@@ -227,59 +472,24 @@ module.exports = Object.assign( {}, require('./__proto__'), {
                 this.d3.line()
                 .curve( this.d3.curveBundle )
 
-            this.model.category.data.forEach( ( datum, i ) => {
-                this.d3.select( this.els.lines )
-                .append( 'path' )
-                    .attr( 'class', 'category' )
-                    .attr( 'data-id', datum.id )
-                    .attr( 'd', this.line( [ [ this.root.x, this.root.y ], [ this.root.x + 100, datum.y ], [ datum.x, datum.y ] ] ) )
-                    .style( 'stroke', this.colorScale(i) )
-                    .style( 'stroke-width', datum.size )
-            } )
+            this.createLines()
 
             this.d3.select( this.els.points )
                 .append( 'circle' )
+                .attr( 'class', 'root' )
                 .attr( 'cx', this.root.x )
                 .attr( 'cy', this.root.y )
                 .attr( 'r', this.rootRadius )
                 .style( 'stroke', this.colorScale(0) )
                 .style( 'fill', this.colorScale( this.model.category.data.length - 1) )
 
-            this.model.category.data.forEach( ( datum, i ) => {
-                this.d3.select( this.els.points )
-                .append( 'circle' )
-                    .attr( 'cx', datum.x )
-                    .attr( 'cy', datum.y )
-                    .attr( 'cy', datum.y )
-                    .style( 'fill', this.colorScale(i) )
-                    .style( 'stroke', this.colorScale.invert(i) )
-            } )
+            //this.createPoints()
 
             this.addText()
+
+            this.initialized = true
             
         } )
-
-        return this;
-            // html element that holds the chart
-            this.viz_container = undefined
-
-            // our weighted tree
-            this.viz = undefined
-
-            // our theme
-            this.theme = undefined
-
-            // nested data
-            this.data = {}
-
-            // stores the currently selected value field
-            this.valueField = "revenue";
-            this.valueFields = ["revenue"];
-
-            // Set the size of our container element.
-            this.viz_container = d3.selectAll("#viz")
-
-            this.loadData();
 
         return this
     }

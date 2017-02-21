@@ -21,7 +21,7 @@ module.exports = Object.assign( {}, require('./__proto__'), {
         marketplace: { headingText: 'Marketplace', showDates: false },
     },
 
-    getHeight() { return window.innerHeight - this.views.heading.els.container.clientHeight },
+    getHeight() { return window.innerHeight - this.views.heading.els.container.clientHeight - this.views.footer.els.container.clientHeight },
     
     onNavigation( path ) {
         const name = path[0]
@@ -59,8 +59,8 @@ module.exports = Object.assign( {}, require('./__proto__'), {
     },
 
     size() {
-        if( this.views.revenue ) this.views.revenue.setHeight( this.getHeight() )
         if( this.views.geo ) this.views.geo.setHeight( this.getHeight() )
+        if( this.views.revenue ) this.views.revenue.setHeight( this.getHeight() )
         return true
     },
 

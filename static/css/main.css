@@ -344,7 +344,7 @@ div.showing .Header .accountUi .menu {
   display: flex !important;
 }
 .Revenue svg {
-  height: 100%;
+  display: block;
   width: 100%;
 }
 .Revenue svg .lines {
@@ -360,11 +360,14 @@ div.showing .Header .accountUi .menu {
 .Revenue svg .text .category {
   cursor: pointer;
 }
-.Revenue svg .text .root {
+.Revenue svg .text .root,
+.Revenue svg .text .total,
+.Revenue svg .text .root-revenue {
   dominant-baseline: central;
 }
-.Revenue svg .text .revenue {
-  text-anchor: left;
+.Revenue svg .text .revenue,
+.Revenue svg .text .root-revenue {
+  text-anchor: end;
 }
 .Sidebar {
   background-color: #364150;
