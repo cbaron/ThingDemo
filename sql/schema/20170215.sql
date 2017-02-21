@@ -99,3 +99,5 @@ INSERT INTO "subCategory" ( "categoryId", name, label ) VALUES ( ( SELECT id FRO
 INSERT INTO "subCategory" ( "categoryId", name, label ) VALUES ( ( SELECT id FROM category WHERE name = 'agriculture' ), 'crop-management', 'Crop Management' );
 INSERT INTO "subCategory" ( "categoryId", name, label ) VALUES ( ( SELECT id FROM category WHERE name = 'infrastructure' ), 'remote-control', 'Remote Control' );
 INSERT INTO "subCategory" ( "categoryId", name, label ) VALUES ( ( SELECT id FROM category WHERE name = 'analytics' ), 'data-marketplace', 'Data Marketplace' );
+
+ALTER TABLE deployment ADD COLUMN "subCategoryId" INTEGER REFERENCES "subCategory" (id);
